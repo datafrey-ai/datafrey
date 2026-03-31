@@ -1,0 +1,21 @@
+[project]
+name = "datafrey-api"
+version = "0.1.0"
+description = "Shared Pydantic models for the datafrey API"
+license = "Apache-2.0"
+requires-python = ">=3.13"
+authors = [{name = "DataFrey", email = "slava@datafrey.ai"}]
+
+dependencies = ["pydantic[email]>=2.0"]
+
+[project.urls]
+Homepage = "https://datafrey.ai"
+Documentation = "https://docs.datafrey.ai"
+Repository = "https://github.com/datafrey-ai/datafrey"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/datafrey_api"]

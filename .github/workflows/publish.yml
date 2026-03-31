@@ -1,0 +1,57 @@
+name: Publish to PyPI
+
+on:
+  push:
+    tags: ["api-v*", "cli-v*", "mcp-v*", "mock-v*"]
+
+permissions:
+  id-token: write
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: pypi
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+
+      - name: Determine package and version
+        id: meta
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          if [[ "$TAG" =~ ^api-v(.+)$ ]]; then
+            echo "package_dir=packages/datafrey-api" >> "$GITHUB_OUTPUT"
+            echo "package_name=datafrey-api" >> "$GITHUB_OUTPUT"
+          elif [[ "$TAG" =~ ^cli-v(.+)$ ]]; then
+            echo "package_dir=packages/datafrey-cli" >> "$GITHUB_OUTPUT"
+            echo "package_name=datafrey" >> "$GITHUB_OUTPUT"
+          elif [[ "$TAG" =~ ^mcp-v(.+)$ ]]; then
+            echo "package_dir=packages/datafrey-mcp" >> "$GITHUB_OUTPUT"
+            echo "package_name=datafrey-mcp" >> "$GITHUB_OUTPUT"
+          elif [[ "$TAG" =~ ^mock-v(.+)$ ]]; then
+            echo "package_dir=packages/datafrey-mock" >> "$GITHUB_OUTPUT"
+            echo "package_name=datafrey-mock" >> "$GITHUB_OUTPUT"
+          else
+            echo "::error::Unknown tag: $TAG"; exit 1
+          fi
+          echo "version=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
+
+      - name: Patch version
+        run: |
+          sed -i 's/^version = ".*"/version = "${{ steps.meta.outputs.version }}"/' \
+            ${{ steps.meta.outputs.package_dir }}/pyproject.toml
+
+      - name: Build
+        run: uv build --package ${{ steps.meta.outputs.package_name }}
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ github.ref_name }}" dist/* \
+            --title "${{ steps.meta.outputs.package_name }} ${{ steps.meta.outputs.version }}" \
+            --generate-notes

@@ -1,0 +1,30 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "datafrey-mock"
+version = "0.1.0"
+description = "Mock API server for local datafrey development and testing"
+license = "Apache-2.0"
+requires-python = ">=3.12"
+authors = [{name = "DataFrey", email = "slava@datafrey.ai"}]
+
+dependencies = [
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.29",
+    "datafrey-api>=0.1",
+    "PyJWT>=2",
+    "cryptography>=42",
+]
+
+[project.urls]
+Homepage = "https://datafrey.ai"
+Documentation = "https://docs.datafrey.ai"
+Repository = "https://github.com/datafrey-ai/datafrey"
+
+[project.scripts]
+datafrey-mock = "datafrey_mock.__main__:main"
+
+[tool.uv.sources]
+datafrey-api = { workspace = true }

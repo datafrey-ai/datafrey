@@ -1,0 +1,29 @@
+[project]
+name = "datafrey-workspace"
+version = "0.1.0"
+description = "datafrey monorepo workspace root"
+license = "Apache-2.0"
+requires-python = ">=3.13"
+authors = [{name = "DataFrey", email = "slava@datafrey.ai"}]
+
+[project.urls]
+Homepage = "https://datafrey.ai"
+Documentation = "https://docs.datafrey.ai"
+Repository = "https://github.com/datafrey-ai/datafrey"
+
+dependencies = ["datafrey-api", "datafrey", "datafrey-mock", "datafrey-mcp"]
+
+[tool.uv.workspace]
+members = ["packages/*"]
+
+[tool.uv.sources]
+datafrey-api = { workspace = true }
+datafrey = { workspace = true }
+datafrey-mock = { workspace = true }
+datafrey-mcp = { workspace = true }
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+    "ruff>=0.15.7",
+]

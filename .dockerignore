@@ -1,0 +1,19 @@
+.venv/
+.git/
+.gitignore
+.ruff_cache/
+.pytest_cache/
+__pycache__/
+*.pyc
+*.egg-info/
+dist/
+build/
+
+# Unrelated workspace packages
+packages/datafrey-cli/
+packages/datafrey-mock/
+
+# Specs and docs
+specs/
+*.md
+LICENSE
