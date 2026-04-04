@@ -38,6 +38,17 @@ datafrey login
 
 The CLI walks you through authentication, connecting your database, and configuring MCP — all in one flow. Then ask anything with `/db` in Claude Code.
 
+### Claude Code plugin
+
+Install the plugin directly from this repo:
+
+```
+claude plugin marketplace add datafrey-ai/datafrey
+claude plugin install datafrey@datafrey
+```
+
+See the [plugin docs](https://docs.datafrey.ai) for details.
+
 ---
 
 ## How it works
