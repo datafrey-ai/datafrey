@@ -1,0 +1,6 @@
+{
+  "datafrey": {
+    "type": "http",
+    "url": "https://mcp.datafrey.ai/mcp"
+  }
+}
