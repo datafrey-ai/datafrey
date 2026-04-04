@@ -5,16 +5,9 @@ Query connected databases with natural language. Run SQL, explore schemas, and a
 ## Installation
 
 ```
-claude plugin install datafrey
+claude plugin marketplace add datafrey-ai/datafrey
+claude plugin install datafrey@datafrey
 ```
-
-Or install directly from the repository:
-
-```
-claude plugin add --source git-subdir --url https://github.com/datafrey-ai/datafrey.git --path plugins/claude-code
-```
-
-Restart Claude Code after installation.
 
 ## What it provides
 
