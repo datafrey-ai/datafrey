@@ -1,0 +1,13 @@
+{
+  "name": "datafrey",
+  "version": "0.1.0",
+  "description": "Query connected databases with natural language. Run SQL, explore schemas, and analyze data.",
+  "author": {
+    "name": "DataFrey",
+    "url": "https://datafrey.ai"
+  },
+  "homepage": "https://docs.datafrey.ai",
+  "repository": "https://github.com/datafrey-ai/datafrey",
+  "license": "Apache-2.0",
+  "keywords": ["database", "sql", "query", "snowflake", "data", "analytics"]
+}
