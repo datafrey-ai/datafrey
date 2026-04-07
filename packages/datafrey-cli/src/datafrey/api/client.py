@@ -9,6 +9,7 @@ from datafrey_api import (
     DatabaseCreate,
     DatabaseCreated,
     DatabaseRecord,
+    IndexStatus,
     PublicKeyResponse,
     StatusResponse,
 )
@@ -73,6 +74,13 @@ class HttpApiClient:
 
     def delete_database(self, db_id: str) -> None:
         self._request("DELETE", f"/databases/{db_id}")
+
+    def reindex_database(self, db_id: str) -> None:
+        self._request("POST", f"/databases/{db_id}/reindex")
+
+    def get_index_status(self, db_id: str) -> IndexStatus:
+        resp = self._request("GET", f"/databases/{db_id}/index-status")
+        return IndexStatus.model_validate(resp.json())
 
     def get_public_key(self) -> PublicKeyResponse:
         resp = self._request("GET", "/databases/public-key")

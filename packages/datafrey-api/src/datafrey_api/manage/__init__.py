@@ -11,10 +11,12 @@ from datafrey_api.manage.databases import (
     DatabaseRecord,
     EncryptedCredentials,
 )
+from datafrey_api.manage.index import IndexStatus
 from datafrey_api.manage.pubkey import PublicKeyResponse
 from datafrey_api.manage.status import StatusResponse, UserInfo
 
 __all__ = [
+    "IndexStatus",
     "DatabaseCreate",
     "DatabaseCreated",
     "DatabaseRecord",

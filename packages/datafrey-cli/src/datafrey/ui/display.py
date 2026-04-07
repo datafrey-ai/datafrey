@@ -179,6 +179,18 @@ def show_mcp_config(config_json: str) -> None:
     console.print(syntax)
 
 
+def show_index_status(index_status) -> None:
+    """Display index status in a readable format."""
+    if index_status.indexed_at is None:
+        console.print("Index:      [dim]not built[/]")
+        print_hint("Run 'datafrey index sync' to build the index.")
+        return
+
+    console.print(f"Indexed:    {index_status.indexed_at.strftime('%Y-%m-%d %H:%M UTC')}")
+    console.print(f"Tables:     {index_status.table_count}")
+    console.print(f"Columns:    {index_status.column_count}")
+
+
 def show_security_warning(expected: str, got: str) -> None:
     """Show a warning panel for server key fingerprint mismatch."""
     panel = Panel(

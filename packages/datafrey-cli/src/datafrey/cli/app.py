@@ -227,9 +227,11 @@ def doctor() -> None:
 # ── Register subgroups ──
 
 from datafrey.cli.db import db_app  # noqa: E402
+from datafrey.cli.index import index_app  # noqa: E402
 from datafrey.cli.mcp import mcp_app  # noqa: E402
 
 app.add_typer(db_app, name="db", help="Manage database connections.")
+app.add_typer(index_app, name="index", help="Manage the database schema index.")
 app.add_typer(mcp_app, name="mcp", help="Configure MCP clients.")
 
 
