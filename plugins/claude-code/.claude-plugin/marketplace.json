@@ -1,0 +1,12 @@
+{
+  "name": "datafrey",
+  "owner": {
+    "name": "DataFrey"
+  },
+  "plugins": [
+    {
+      "name": "datafrey",
+      "source": "./"
+    }
+  ]
+}
