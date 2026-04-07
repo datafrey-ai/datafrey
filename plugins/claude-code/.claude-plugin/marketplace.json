@@ -1,7 +1,8 @@
 {
   "name": "datafrey",
   "owner": {
-    "name": "DataFrey"
+    "name": "DataFrey",
+    "email": "slava@datafrey.ai"
   },
   "plugins": [
     {
