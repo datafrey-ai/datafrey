@@ -48,8 +48,15 @@ def create_server(
     mcp = FastMCP(
         name="datafrey",
         instructions=(
-            "Datafrey — query your connected databases using natural language. "
-            "Use 'plan' to generate a query plan, then 'run' to execute it."
+            "Datafrey — query your connected databases using natural language.\n\n"
+            "Tools:\n"
+            "- plan: generates a verified query plan from a natural language question using "
+            "the database column index. Use this when the correct SQL is not immediately "
+            "obvious — unfamiliar schema, complex joins, or ambiguous column names. "
+            "Requires the index to be built first (`datafrey index sync`).\n"
+            "- run: executes SQL against the connected database.\n\n"
+            "Workflow: for simple questions, write SQL and call run directly. "
+            "For complex questions, call plan first, then run the SQL it produces."
         ),
         auth=auth,
         lifespan=lifespan,

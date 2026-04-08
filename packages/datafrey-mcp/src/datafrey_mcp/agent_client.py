@@ -9,7 +9,7 @@ class AgentApiClient:
     """Forwards MCP tool calls to /agent/v1/ endpoints."""
 
     def __init__(self, base_url: str) -> None:
-        self._client = httpx.AsyncClient(base_url=base_url, timeout=30.0)
+        self._client = httpx.AsyncClient(base_url=base_url, timeout=120.0)
 
     async def _post(self, path: str, token: str, body: dict) -> dict:
         resp = await self._client.post(
