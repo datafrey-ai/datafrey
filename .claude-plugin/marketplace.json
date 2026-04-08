@@ -7,7 +7,7 @@
   "plugins": [
     {
       "name": "datafrey",
-      "source": "./plugins/claude-code/.claude-plugin/"
+      "source": "./plugins/claude-code/"
     }
   ]
 }
