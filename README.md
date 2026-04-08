@@ -36,7 +36,9 @@ uv tool install datafrey
 datafrey login
 ```
 
-The CLI walks you through authentication, connecting your database, and configuring MCP — all in one flow. Then ask anything with `/db` in Claude Code.
+The CLI walks you through authentication, connecting your database, and configuring MCP — all in one flow.
+
+Then ask anything with `/db` in Claude Code.
 
 ### Claude Code plugin
 
@@ -59,7 +61,9 @@ DataFrey connects your database to AI assistants securely:
 
 2. **Connect** -- Your credentials are encrypted client-side using AES-256-GCM + RSA-OAEP before they leave your machine and stored server-side in a dedicated secrets vault with per-tenant isolation.
 
-3. **Query** -- Use `/db` in Claude Code to ask questions in natural language. DataFrey reads your schema, writes safe SQL, runs it, and returns structured results — no manual queries needed.
+3. **Index** -- `datafrey index sync` analyzes your connected database and builds an index used by the planning skill. Run it after onboarding and whenever your schema changes.
+
+4. **Query** -- Use `/db` in Claude Code to ask questions in natural language. Simple queries run directly; complex questions go through a planning step that uses the index to produce accurate results.
 
 ---
 
@@ -73,6 +77,8 @@ DataFrey connects your database to AI assistants securely:
 | `datafrey db connect` | Connect a database manually |
 | `datafrey db list` | List connected databases |
 | `datafrey db drop` | Remove a connected database |
+| `datafrey index sync` | Build or refresh the column index (required for planning) |
+| `datafrey index status` | Show index status (tables, columns, last indexed) |
 | `datafrey mcp setup` | Configure a specific AI client for MCP |
 | `datafrey doctor` | Check environment and connectivity |
 | `datafrey status` | Show current auth status |
