@@ -1,0 +1,13 @@
+{
+  "name": "datafrey",
+  "owner": {
+    "name": "DataFrey",
+    "email": "slava@datafrey.ai"
+  },
+  "plugins": [
+    {
+      "name": "datafrey",
+      "source": "./plugins/claude-code/.claude-plugin/"
+    }
+  ]
+}
