@@ -36,6 +36,8 @@ uv tool install datafrey
 datafrey login
 ```
 
+The CLI walks you through authentication, connecting your database, and configuring MCP — all in one flow.
+
 Then ask anything with `/db` in Claude Code.
 
 ### Claude Code plugin
