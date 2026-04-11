@@ -39,7 +39,9 @@ _CLIENT_CONFIGS: dict[str, dict[str, Path]] = {
 
 DATAFREY_MCP_CONFIG = {"url": MCP_URL}
 
-CLIENT_CHOICES = ["Claude Code", "Custom", "Claude Desktop", "Cursor"]
+CLIENT_CHOICES = ["Claude Code", "Cursor", "Custom"]
+# Claude Desktop is not yet tested/supported
+# CLIENT_CHOICES = ["Claude Code", "Claude Desktop", "Cursor", "Custom"]
 
 
 def _get_config_path(client: str) -> Path | None:
@@ -118,8 +120,8 @@ def client_setup() -> None:
 
     if choice == "Claude Code":
         _setup_claude_code()
-    elif choice == "Claude Desktop":
-        _setup_config_client("claude_desktop", "Claude Desktop")
+    # elif choice == "Claude Desktop":
+    #     _setup_config_client("claude_desktop", "Claude Desktop")
     elif choice == "Cursor":
         _setup_config_client("cursor", "Cursor")
     elif choice == "Custom":
