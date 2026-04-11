@@ -66,7 +66,10 @@ class SnowflakeProvider(DatabaseProvider):
     def collect_setup_choices(self) -> dict:
         auth_choice = prompt_select(
             "Authentication method:",
-            choices=["Programmatic Access Token (PAT)", "RSA Key Pair"],
+            choices=[
+                "Programmatic Access Token (PAT)",
+                # "RSA Key Pair",  # TODO: not fully tested yet, re-enable when ready
+            ],
         )
         auth = "pat" if "PAT" in auth_choice else "keypair"
 
