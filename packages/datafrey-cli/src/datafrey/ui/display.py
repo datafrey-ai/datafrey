@@ -129,10 +129,25 @@ def show_databases_table(databases: list) -> None:
     console.print(table)
 
 
-def show_status(email: str, name: str, db_count: int) -> None:
+def show_status(email: str, name: str, db=None, index_status=None) -> None:
     console.print(f"User:       {email} ({name})")
-    console.print(f"Databases:  {db_count} connected")
-    print_docs_link("db-list")
+    if db is None:
+        console.print("Database:   [dim]none[/]")
+        print_hint("Run 'datafrey db connect' to add one.")
+        return
+    db_connected = db.status.value == "connected"
+    status_label = "" if db_connected else f" [{db.status.value}]"
+    console.print(f"Database:   {db.host}{status_label}")
+    if not db_connected:
+        console.print("Index:      [dim]not available (database not connected)[/]")
+        return
+    if index_status is None or index_status.indexed_at is None:
+        console.print("Index:      [dim]not built[/]")
+        print_hint("Run 'datafrey index' to build the index.")
+        return
+    console.print(f"Indexed:    {index_status.indexed_at.strftime('%Y-%m-%d %H:%M UTC')}")
+    console.print(f"Tables:     {index_status.table_count}")
+    console.print(f"Columns:    {index_status.column_count}")
 
 
 def show_review_panel(fields: dict[str, str]) -> None:
@@ -183,7 +198,7 @@ def show_index_status(index_status) -> None:
     """Display index status in a readable format."""
     if index_status.indexed_at is None:
         console.print("Index:      [dim]not built[/]")
-        print_hint("Run 'datafrey index sync' to build the index.")
+        print_hint("Run 'datafrey index' to build the index.")
         return
 
     console.print(f"Indexed:    {index_status.indexed_at.strftime('%Y-%m-%d %H:%M UTC')}")

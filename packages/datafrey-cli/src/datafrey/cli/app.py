@@ -123,23 +123,38 @@ def status(
         bool, typer.Option("--json", help="Output as JSON.")
     ] = False,
 ) -> None:
-    """Show current authentication status."""
+    """Show authentication, database, and index status."""
     from datafrey.auth.middleware import get_authenticated_client
     from datafrey.ui.display import print_json_success, show_status
 
     with get_authenticated_client() as client:
         resp = client.get_status()
+        databases = client.list_databases()
+        db = databases[0] if databases else None
+        index_status = None
+        if db and db.status.value == "connected":
+            try:
+                index_status = client.get_index_status(db.id)
+            except Exception:
+                pass
 
     if json_output:
-        print_json_success(
-            {
-                "authenticated": True,
-                "user": {"email": resp.user.email, "name": resp.user.name},
-                "databases_count": resp.databases_count,
+        data: dict = {
+            "authenticated": True,
+            "user": {"email": resp.user.email, "name": resp.user.name},
+            "databases_count": resp.databases_count,
+        }
+        if db:
+            data["database"] = {
+                "name": db.name,
+                "host": db.host,
+                "status": db.status.value,
             }
-        )
+        if index_status is not None:
+            data["index"] = index_status.model_dump(mode="json")
+        print_json_success(data)
     else:
-        show_status(resp.user.email, resp.user.name, resp.databases_count)
+        show_status(resp.user.email, resp.user.name, db, index_status)
 
 
 @app.command(hidden=True)
@@ -225,11 +240,11 @@ def doctor() -> None:
 # ── Register subgroups ──
 
 from datafrey.cli.db import db_app  # noqa: E402
-from datafrey.cli.index import index_app  # noqa: E402
+from datafrey.cli.index import index_command  # noqa: E402
 from datafrey.cli.mcp import mcp_app  # noqa: E402
 
 app.add_typer(db_app, name="db", help="Manage database connections.")
-app.add_typer(index_app, name="index", help="Manage the database schema index.")
+app.command("index", help="Sync the database schema index.")(index_command)
 app.add_typer(mcp_app, name="mcp", help="Configure MCP clients.")
 
 

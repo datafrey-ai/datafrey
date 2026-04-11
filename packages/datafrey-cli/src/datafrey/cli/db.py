@@ -31,10 +31,10 @@ def _offer_index(db_id: str) -> None:
         with get_authenticated_client() as client:
             client.reindex_database(db_id)
         print_success("Indexing started.")
-        print_hint("Run 'datafrey index status' to check progress.")
+        print_hint("Run 'datafrey status' to check progress.")
     else:
         print_hint(
-            "When ready, run 'datafrey index sync' to index. "
+            "When ready, run 'datafrey index' to index. "
             "Planning won't work until schema is indexed."
         )
     console.print()
