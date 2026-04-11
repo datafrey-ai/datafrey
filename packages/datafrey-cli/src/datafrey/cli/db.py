@@ -124,6 +124,10 @@ def db_connect() -> None:
     provider_name = prompt_select("Select database provider:", get_provider_choices())
     provider = get_provider(provider_name)
 
+    # Auth method (auto-selects if only one option)
+    console.print()
+    partial_choices = provider.collect_auth_method()
+
     # Offer to open provider console
     if provider_name == "snowflake":
         console.print()
@@ -138,7 +142,7 @@ def db_connect() -> None:
         console.print()
 
     # Ask setup questions first, then show SQL
-    choices = provider.collect_setup_choices()
+    choices = provider.collect_setup_choices(partial_choices)
     run_onboarding(provider, choices)
 
     # Collect credentials (PAT prompt comes first if applicable)

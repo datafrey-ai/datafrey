@@ -63,15 +63,13 @@ class SnowflakeProvider(DatabaseProvider):
     name = "snowflake"
     display_name = "Snowflake"
 
-    def collect_setup_choices(self) -> dict:
-        auth_choice = prompt_select(
-            "Authentication method:",
-            choices=[
-                "Programmatic Access Token (PAT)",
-                # "RSA Key Pair",  # TODO: not fully tested yet, re-enable when ready
-            ],
-        )
-        auth = "pat" if "PAT" in auth_choice else "keypair"
+    def collect_auth_method(self) -> dict:
+        # Only one option — auto-select without prompting
+        console.print("Authentication method: Programmatic Access Token (PAT)")
+        return {"auth_method": "pat"}
+
+    def collect_setup_choices(self, pre_choices: dict | None = None) -> dict:
+        auth = (pre_choices or {}).get("auth_method", "pat")
 
         console.print()
         console.print("[dim]To list your databases:[/] [bold]SHOW DATABASES;[/]")
@@ -127,8 +125,7 @@ class SnowflakeProvider(DatabaseProvider):
         )
         username = prompt_text("Username:", default="DATAFREY_USER")
         role = prompt_text("Role:", default="DATAFREY_ROLE")
-        default_name = f"{account.split('.')[0]}-db"
-        name = prompt_text("Connection Name:", default=default_name)
+        name = f"{account.split('.')[0]}-db"
 
         base = {
             "account": account,
