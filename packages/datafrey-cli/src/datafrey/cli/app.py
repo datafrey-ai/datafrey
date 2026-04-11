@@ -77,14 +77,9 @@ def login(
     try:
         existing = token_store.get_access_token()
         if existing:
-            import jwt
-
-            payload = jwt.decode(existing, options={"verify_signature": False})
-            email = payload.get("email", "unknown")
-            err_console.print(
-                f"Already logged in as {email}. Run 'datafrey logout' first."
-            )
-            raise typer.Exit(0)
+            relogin = typer.confirm("Already logged in. Re-login?", default=False)
+            if not relogin:
+                raise typer.Exit(0)
     except DatafreyError:
         pass  # Keyring issues — proceed with login
 
