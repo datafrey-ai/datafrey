@@ -14,7 +14,7 @@ from datafrey.ui.display import print_docs_link, print_error, print_success
 
 app = typer.Typer(
     name="datafrey",
-    help="Manage database connections and MCP servers.",
+    help="Manage database connections and AI client plugins.",
     invoke_without_command=True,
     add_completion=True,
     rich_markup_mode="rich",
@@ -239,13 +239,13 @@ def doctor() -> None:
 
 # ── Register subgroups ──
 
+from datafrey.cli.client import client_setup  # noqa: E402
 from datafrey.cli.db import db_app  # noqa: E402
 from datafrey.cli.index import index_command  # noqa: E402
-from datafrey.cli.mcp import mcp_app  # noqa: E402
 
 app.add_typer(db_app, name="db", help="Manage database connections.")
 app.command("index", help="Sync the database schema index.")(index_command)
-app.add_typer(mcp_app, name="mcp", help="Configure MCP clients.")
+app.command("client", help="Configure an AI client to use Datafrey.")(client_setup)
 
 
 # ── Entry point with global error handling ──

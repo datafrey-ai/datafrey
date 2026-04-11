@@ -1,4 +1,4 @@
-"""mcp subgroup: setup."""
+"""client command: configure AI clients."""
 
 from __future__ import annotations
 
@@ -7,8 +7,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-import typer
-
 from datafrey.ui.console import console
 from datafrey.ui.display import (
     print_docs_link,
@@ -16,8 +14,6 @@ from datafrey.ui.display import (
     print_success,
     show_mcp_config,
 )
-
-mcp_app = typer.Typer(no_args_is_help=True)
 
 MCP_URL = "https://mcp.datafrey.ai/mcp"
 
@@ -114,9 +110,8 @@ def _setup_custom() -> None:
         console.print("[dim]Copied to clipboard.[/]")
 
 
-@mcp_app.command("setup")
-def mcp_setup() -> None:
-    """Configure AI clients to use the Datafrey MCP server."""
+def client_setup() -> None:
+    """Configure an AI client to use Datafrey."""
     from datafrey.ui.prompts import prompt_select
 
     choice = prompt_select("Select your AI client:", CLIENT_CHOICES)

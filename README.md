@@ -79,7 +79,7 @@ DataFrey connects your database to AI assistants securely:
 | `datafrey db drop` | Remove a connected database |
 | `datafrey index sync` | Build or refresh the column index (required for planning) |
 | `datafrey index status` | Show index status (tables, columns, last indexed) |
-| `datafrey mcp setup` | Configure a specific AI client for MCP |
+| `datafrey client` | Configure an AI client to use Datafrey |
 | `datafrey doctor` | Check environment and connectivity |
 | `datafrey status` | Show current auth status |
 
