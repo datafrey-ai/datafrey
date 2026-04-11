@@ -15,7 +15,7 @@ from datafrey.ui.display import print_docs_link, print_error, print_success
 app = typer.Typer(
     name="datafrey",
     help="Manage database connections and MCP servers.",
-    no_args_is_help=True,
+    invoke_without_command=True,
     add_completion=True,
     rich_markup_mode="rich",
 )
@@ -29,6 +29,7 @@ def version_callback(value: bool) -> None:
 
 @app.callback()
 def _app_callback(
+    ctx: typer.Context,
     version: Annotated[
         Optional[bool],
         typer.Option(
@@ -42,6 +43,8 @@ def _app_callback(
 ) -> None:
     """Datafrey CLI — connect your database, query it from any AI."""
     _check_first_run()
+    if ctx.invoked_subcommand is None:
+        login()
 
 
 def _check_first_run() -> None:
