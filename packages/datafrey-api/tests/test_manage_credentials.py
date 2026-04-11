@@ -8,7 +8,6 @@ from datafrey_api import (
     SnowflakeCredentials,
     SnowflakeKeyPairCredentials,
     SnowflakePATCredentials,
-    PostgresCredentials,
     validate_credentials,
 )
 
@@ -104,38 +103,6 @@ class TestSnowflakeKeyPairCredentials:
             SnowflakeKeyPairCredentials(**data)
 
 
-class TestPostgresCredentials:
-    _VALID = {
-        "host": "db.example.com",
-        "port": 5432,
-        "username": "app_user",
-        "password": "secret",
-        "database": "mydb",
-    }
-
-    def test_valid(self):
-        creds = PostgresCredentials(**self._VALID)
-        assert creds.host == "db.example.com"
-        assert creds.port == 5432
-
-    def test_host_required(self):
-        data = {**self._VALID}
-        del data["host"]
-        with pytest.raises(ValidationError, match="host"):
-            PostgresCredentials(**data)
-
-    def test_port_default(self):
-        data = {**self._VALID}
-        del data["port"]
-        creds = PostgresCredentials(**data)
-        assert creds.port == 5432
-
-    def test_port_range(self):
-        with pytest.raises(ValidationError):
-            PostgresCredentials(**{**self._VALID, "port": 0})
-        with pytest.raises(ValidationError):
-            PostgresCredentials(**{**self._VALID, "port": 70000})
-
 
 class TestValidateCredentials:
     def test_dispatches_to_snowflake_pat(self):
@@ -179,18 +146,6 @@ class TestValidateCredentials:
                     "password": "secret",
                 },
             )
-
-    def test_dispatches_to_postgres(self):
-        result = validate_credentials(
-            Provider.postgres,
-            {
-                "host": "localhost",
-                "username": "user",
-                "password": "pass",
-                "database": "mydb",
-            },
-        )
-        assert isinstance(result, PostgresCredentials)
 
     def test_missing_host_shows_clear_error(self):
         """Credentials sent without host field raise a clear error."""

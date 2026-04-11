@@ -4,8 +4,7 @@ from datafrey_api import DatabaseStatus, Provider
 class TestProvider:
     def test_values(self):
         assert Provider.snowflake == "snowflake"
-        assert Provider.postgres == "postgres"
-        assert len(Provider) == 2
+        assert len(Provider) == 1
 
     def test_value_access(self):
         assert Provider.snowflake.value == "snowflake"

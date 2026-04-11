@@ -63,7 +63,7 @@ class TestDatabaseCreate:
 
     def test_name_stripped(self):
         db = DatabaseCreate(
-            provider=Provider.postgres,
+            provider=Provider.snowflake,
             name="  Staging  ",
             encrypted_credentials=_make_creds(),
         )
@@ -131,7 +131,7 @@ class TestDatabaseCreated:
     def test_frozen(self):
         rec = DatabaseCreated(
             id="db-1",
-            provider=Provider.postgres,
+            provider=Provider.snowflake,
             name="Test",
             host="localhost",
             status=DatabaseStatus.disconnected,

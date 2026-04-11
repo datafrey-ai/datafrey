@@ -37,12 +37,11 @@ class DatabaseProvider(ABC):
 
 
 def get_provider_choices() -> list[Choice]:
-    """Return questionary choices with disabled items for coming-soon providers."""
+    """Return questionary choices for supported providers."""
     from questionary import Choice
 
     return [
         Choice("Snowflake", value="snowflake"),
-        Choice("PostgreSQL (coming soon)", value="postgres", disabled="coming soon"),
     ]
 
 

@@ -3,7 +3,6 @@ from enum import Enum
 
 class Provider(str, Enum):
     snowflake = "snowflake"
-    postgres = "postgres"
 
 
 class DatabaseStatus(str, Enum):
