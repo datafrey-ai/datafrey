@@ -173,6 +173,6 @@ def db_connect() -> None:
         print_warning(f"Connection status: {status.value}")
         raise typer.Exit(1)
 
-    from datafrey.cli.client import client_setup
+    from datafrey.cli.client import _run_interactive_menu
 
-    client_setup()
+    _run_interactive_menu()

@@ -1,4 +1,4 @@
-"""client command: configure AI clients."""
+"""client subgroup: configure AI clients."""
 
 from __future__ import annotations
 
@@ -6,6 +6,8 @@ import json
 import subprocess
 import sys
 from pathlib import Path
+
+import typer
 
 from datafrey.ui.console import console
 from datafrey.ui.display import (
@@ -19,19 +21,19 @@ MCP_URL = "https://mcp.datafrey.ai/mcp"
 
 # Client config file paths per platform
 _CLIENT_CONFIGS: dict[str, dict[str, Path]] = {
-    "claude_desktop": {
-        "darwin": Path.home()
-        / "Library"
-        / "Application Support"
-        / "Claude"
-        / "claude_desktop_config.json",
-        "linux": Path.home() / ".config" / "Claude" / "claude_desktop_config.json",
-        "win32": Path(str(Path.home()).replace("/", "\\"))
-        / "AppData"
-        / "Roaming"
-        / "Claude"
-        / "claude_desktop_config.json",
-    },
+    # "claude_desktop": {
+    #     "darwin": Path.home()
+    #     / "Library"
+    #     / "Application Support"
+    #     / "Claude"
+    #     / "claude_desktop_config.json",
+    #     "linux": Path.home() / ".config" / "Claude" / "claude_desktop_config.json",
+    #     "win32": Path(str(Path.home()).replace("/", "\\"))
+    #     / "AppData"
+    #     / "Roaming"
+    #     / "Claude"
+    #     / "claude_desktop_config.json",
+    # },
     "cursor": {
         "all": Path.home() / ".cursor" / "mcp.json",
     },
@@ -39,9 +41,16 @@ _CLIENT_CONFIGS: dict[str, dict[str, Path]] = {
 
 DATAFREY_MCP_CONFIG = {"url": MCP_URL}
 
-CLIENT_CHOICES = ["Claude Code", "Cursor", "Custom"]
+CLIENT_CHOICES = ["Claude Code", "Cursor", "MCP (Custom)"]
 # Claude Desktop is not yet tested/supported
-# CLIENT_CHOICES = ["Claude Code", "Claude Desktop", "Cursor", "Custom"]
+# CLIENT_CHOICES = ["Claude Code", "Claude Desktop", "Cursor", "MCP (Custom)"]
+
+client_app = typer.Typer(
+    name="client",
+    help="Configure an AI client to use Datafrey.",
+    invoke_without_command=True,
+    no_args_is_help=False,
+)
 
 
 def _get_config_path(client: str) -> Path | None:
@@ -85,7 +94,7 @@ def _setup_claude_code() -> None:
 
 
 def _setup_config_client(client_key: str, label: str) -> None:
-    """Patch a JSON config file for Claude Desktop or Cursor."""
+    """Patch a JSON config file for Cursor or similar clients."""
     path = _get_config_path(client_key)
     if path is None:
         from datafrey.ui.display import print_error
@@ -112,8 +121,14 @@ def _setup_custom() -> None:
         console.print("[dim]Copied to clipboard.[/]")
 
 
-def client_setup() -> None:
-    """Configure an AI client to use Datafrey."""
+def _print_footer() -> None:
+    console.print()
+    console.print("Authentication handled automatically when MCP client connects.")
+    print_docs_link("mcp")
+
+
+def _run_interactive_menu() -> None:
+    """Show the interactive client selection menu."""
     from datafrey.ui.prompts import prompt_select
 
     choice = prompt_select("Select your AI client:", CLIENT_CHOICES)
@@ -124,12 +139,38 @@ def client_setup() -> None:
     #     _setup_config_client("claude_desktop", "Claude Desktop")
     elif choice == "Cursor":
         _setup_config_client("cursor", "Cursor")
-    elif choice == "Custom":
+    elif choice == "MCP (Custom)":
         _setup_custom()
 
-    console.print()
-    console.print("Authentication handled automatically when MCP client connects.")
-    print_docs_link("mcp")
+    _print_footer()
+
+
+@client_app.callback()
+def client_callback(ctx: typer.Context) -> None:
+    """Configure an AI client to use Datafrey."""
+    if ctx.invoked_subcommand is None:
+        _run_interactive_menu()
+
+
+@client_app.command("claude")
+def client_claude() -> None:
+    """Configure Claude Code."""
+    _setup_claude_code()
+    _print_footer()
+
+
+@client_app.command("cursor")
+def client_cursor() -> None:
+    """Configure Cursor."""
+    _setup_config_client("cursor", "Cursor")
+    _print_footer()
+
+
+@client_app.command("mcp")
+def client_mcp() -> None:
+    """Print MCP config block for any MCP-compatible client."""
+    _setup_custom()
+    _print_footer()
 
 
 def _patch_config(config_path: Path) -> None:
