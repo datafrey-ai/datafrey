@@ -53,32 +53,37 @@ def _get_config_path(client: str) -> Path | None:
 
 
 def _setup_claude_code() -> None:
-    """Configure Claude Code by running its CLI command."""
-    cmd = ["claude", "mcp", "add", "--transport", "http", "datafrey", MCP_URL]
-    console.print(f"[dim]Running: {' '.join(cmd)}[/]\n")
-    try:
-        result = subprocess.run(cmd, check=False)
-        if result.returncode == 0:
-            print_success("Datafrey MCP server added to Claude Code.")
-            console.print()
-            console.print("Next steps:")
-            console.print("  1. Run [bold]claude[/] to start Claude Code")
-            console.print("  2. Use any MCP tool — Datafrey will prompt you to authenticate")
-            console.print("  3. Open the link in your browser to complete login")
-        else:
-            from datafrey.ui.display import print_error
+    """Configure Claude Code by installing the Datafrey plugin."""
+    from datafrey.ui.display import print_error
 
+    commands = [
+        ["claude", "plugin", "marketplace", "add", "datafrey-ai/datafrey"],
+        ["claude", "plugin", "install", "datafrey@datafrey"],
+    ]
+
+    for cmd in commands:
+        console.print(f"[dim]Running: {' '.join(cmd)}[/]\n")
+        try:
+            result = subprocess.run(cmd, check=False)
+        except FileNotFoundError:
+            print_error(
+                "'claude' command not found.",
+                "Install Claude Code first: https://docs.anthropic.com/en/docs/claude-code",
+            )
+            return
+        if result.returncode != 0:
             print_error(
                 "Command failed.",
                 "Make sure Claude Code CLI is installed: https://docs.anthropic.com/en/docs/claude-code",
             )
-    except FileNotFoundError:
-        from datafrey.ui.display import print_error
+            return
 
-        print_error(
-            "'claude' command not found.",
-            "Install Claude Code first: https://docs.anthropic.com/en/docs/claude-code",
-        )
+    print_success("Datafrey plugin installed in Claude Code.")
+    console.print()
+    console.print("Next steps:")
+    console.print("  1. Run [bold]claude[/] to start Claude Code")
+    console.print("  2. Run [bold]claude mcp enable datafrey[/] to enable the MCP server")
+    console.print("  3. Use [bold]/db[/] to query your database")
 
 
 def _setup_config_client(client_key: str, label: str) -> None:
