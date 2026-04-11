@@ -18,6 +18,28 @@ from datafrey.ui.prompts import prompt_confirm
 db_app = typer.Typer(no_args_is_help=True)
 
 
+def _offer_index(db_id: str) -> None:
+    """Ask user if they want to index schema; fire-and-forget if yes."""
+    from datafrey.auth.middleware import get_authenticated_client
+    from datafrey.ui.display import print_success
+
+    console.print()
+    console.print(
+        "Schema indexing lets the AI understand your database structure for better query planning."
+    )
+    if prompt_confirm("Index schema now? (recommended)", default=True):
+        with get_authenticated_client() as client:
+            client.reindex_database(db_id)
+        print_success("Indexing started.")
+        print_hint("Run 'datafrey index status' to check progress.")
+    else:
+        print_hint(
+            "When ready, run 'datafrey index sync' to index. "
+            "Planning won't work until schema is indexed."
+        )
+    console.print()
+
+
 @db_app.command("list")
 def db_list(
     json_output: Annotated[
@@ -139,6 +161,7 @@ def db_connect() -> None:
         console.print("[dim]Skipped. Check connection status: datafrey db list[/dim]")
     elif status == DatabaseStatus.connected:
         print_success("Connected!")
+        _offer_index(result.id)
     elif status == DatabaseStatus.error:
         print_warning("Connection failed. Check your credentials and try again.")
         raise typer.Exit(1)
