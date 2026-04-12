@@ -30,60 +30,45 @@ Or with [uv](https://docs.astral.sh/uv/):
 uv tool install datafrey
 ```
 
-### 2. Log in
+### 2. Connect your database
 
 ```bash
-datafrey login
+datafrey
 ```
 
-The CLI walks you through authentication, connecting your database, and configuring MCP — all in one flow.
+The CLI walks you through authentication, connecting your database, indexing your schema, and configuring your AI client — all in one flow.
 
 Then ask anything with `/db` in Claude Code.
-
-### Claude Code plugin
-
-Install the plugin directly from this repo:
-
-```
-claude plugin marketplace add datafrey-ai/datafrey
-claude plugin install datafrey@datafrey
-```
-
-See the [plugin docs](https://docs.datafrey.ai) for details.
 
 ---
 
 ## How it works
 
-DataFrey connects your database to AI assistants securely:
+1. **Authenticate** — OAuth login via browser. Tokens are stored in your OS keychain, never in plaintext on disk.
 
-1. **Authenticate** -- `datafrey login` opens your browser for OAuth login via WorkOS. Tokens are stored in your OS keychain — never in plaintext on disk.
+2. **Connect** — Credentials are encrypted client-side (AES-256-GCM + RSA-OAEP) before leaving your machine and stored in a per-tenant secrets vault.
 
-2. **Connect** -- Your credentials are encrypted client-side using AES-256-GCM + RSA-OAEP before they leave your machine and stored server-side in a dedicated secrets vault with per-tenant isolation.
+3. **Index** — The CLI analyzes your schema and builds a column index for the planning skill. This happens automatically during onboarding; re-run `datafrey index` whenever your schema changes.
 
-3. **Index** -- `datafrey index sync` analyzes your connected database and builds an index used by the planning skill. Run it after onboarding and whenever your schema changes.
-
-4. **Query** -- Use `/db` in Claude Code to ask questions in natural language. Simple queries run directly; complex questions go through a planning step that uses the index to produce accurate results.
+4. **Query** — Use `/db` in Claude Code to ask questions in natural language. Simple queries run directly; complex ones go through a planning step that uses the index to produce accurate SQL.
 
 ---
 
 ## Commands
 
-`datafrey login` is all you need to get started. For more control, additional commands are available:
-
 | Command | Description |
 | --- | --- |
-| `datafrey login` | Authenticate and set everything up |
-| `datafrey db connect` | Connect a database manually |
+| `datafrey login` | Authenticate with Datafrey |
+| `datafrey logout` | Remove stored credentials |
+| `datafrey status` | Show auth, database, and index status |
+| `datafrey db connect` | Connect a new database (interactive) |
 | `datafrey db list` | List connected databases |
-| `datafrey db drop` | Remove a connected database |
-| `datafrey index sync` | Build or refresh the column index (required for planning) |
-| `datafrey index status` | Show index status (tables, columns, last indexed) |
-| `datafrey client` | Configure an AI client to use Datafrey |
+| `datafrey db drop` | Remove the connected database |
+| `datafrey index` | Sync the database schema index |
+| `datafrey client claude` | Configure Claude Code |
+| `datafrey client cursor` | Configure Cursor |
+| `datafrey client mcp` | Print MCP config block for any MCP-compatible client |
 | `datafrey doctor` | Check environment and connectivity |
-| `datafrey status` | Show current auth status |
-
-See the [documentation](https://docs.datafrey.ai) for the full reference.
 
 ---
 
