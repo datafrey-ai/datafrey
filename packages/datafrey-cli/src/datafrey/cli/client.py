@@ -4,8 +4,7 @@ from __future__ import annotations
 
 import json
 import subprocess
-import sys
-from pathlib import Path
+import webbrowser
 
 import typer
 
@@ -19,26 +18,6 @@ from datafrey.ui.display import (
 
 MCP_URL = "https://mcp.datafrey.ai/mcp"
 
-# Client config file paths per platform
-_CLIENT_CONFIGS: dict[str, dict[str, Path]] = {
-    # "claude_desktop": {
-    #     "darwin": Path.home()
-    #     / "Library"
-    #     / "Application Support"
-    #     / "Claude"
-    #     / "claude_desktop_config.json",
-    #     "linux": Path.home() / ".config" / "Claude" / "claude_desktop_config.json",
-    #     "win32": Path(str(Path.home()).replace("/", "\\"))
-    #     / "AppData"
-    #     / "Roaming"
-    #     / "Claude"
-    #     / "claude_desktop_config.json",
-    # },
-    "cursor": {
-        "all": Path.home() / ".cursor" / "mcp.json",
-    },
-}
-
 DATAFREY_MCP_CONFIG = {"url": MCP_URL}
 
 CLIENT_CHOICES = ["Claude Code", "Cursor", "MCP (Custom)"]
@@ -51,12 +30,6 @@ client_app = typer.Typer(
     invoke_without_command=True,
     no_args_is_help=False,
 )
-
-
-def _get_config_path(client: str) -> Path | None:
-    """Get the config file path for a client on this platform."""
-    paths = _CLIENT_CONFIGS.get(client, {})
-    return paths.get(sys.platform) or paths.get("all")
 
 
 def _setup_claude_code() -> None:
@@ -93,18 +66,29 @@ def _setup_claude_code() -> None:
     console.print("  3. Use [bold]/db[/] to query your database")
 
 
-def _setup_config_client(client_key: str, label: str) -> None:
-    """Patch a JSON config file for Cursor or similar clients."""
-    path = _get_config_path(client_key)
-    if path is None:
-        from datafrey.ui.display import print_error
+def _setup_cursor() -> None:
+    import base64
 
-        print_error(f"Could not determine config path for {label} on this platform.")
-        return
-
-    _patch_config(path)
-    print_success(f"Updated {label} config at {path}")
-    print_hint(f"Restart {label} to apply.")
+    config = base64.b64encode(
+        json.dumps(DATAFREY_MCP_CONFIG, separators=(",", ":")).encode()
+    ).decode()
+    url = f"cursor://anysphere.cursor-deeplink/mcp/install?name=datafrey&config={config}"
+    try:
+        webbrowser.open(url)
+        print_success("Opening Cursor install dialog...")
+    except Exception:
+        console.print("[dim]Could not open automatically. Click the link below:[/]")
+        console.print(f"\n  [blue][link={url}]{url}[/link][/blue]\n")
+    console.print()
+    console.print("Next steps:")
+    console.print("  1. Click [bold]Install[/] in the Cursor dialog")
+    console.print("  2. Authenticate when Cursor connects to the MCP server")
+    console.print("  3. Ask Cursor about your database")
+    console.print()
+    print_hint(
+        "To also get the [bold]/db[/] skill: run [bold]datafrey client claude[/] — "
+        "Cursor will suggest installing the plugin automatically."
+    )
 
 
 def _setup_custom() -> None:
@@ -138,7 +122,7 @@ def _run_interactive_menu() -> None:
     # elif choice == "Claude Desktop":
     #     _setup_config_client("claude_desktop", "Claude Desktop")
     elif choice == "Cursor":
-        _setup_config_client("cursor", "Cursor")
+        _setup_cursor()
     elif choice == "MCP (Custom)":
         _setup_custom()
 
@@ -162,7 +146,7 @@ def client_claude() -> None:
 @client_app.command("cursor")
 def client_cursor() -> None:
     """Configure Cursor."""
-    _setup_config_client("cursor", "Cursor")
+    _setup_cursor()
     _print_footer()
 
 
@@ -171,21 +155,3 @@ def client_mcp() -> None:
     """Print MCP config block for any MCP-compatible client."""
     _setup_custom()
     _print_footer()
-
-
-def _patch_config(config_path: Path) -> None:
-    """Read existing config, merge datafrey MCP server, write back."""
-    if config_path.exists():
-        try:
-            existing = json.loads(config_path.read_text())
-        except (json.JSONDecodeError, OSError):
-            existing = {}
-    else:
-        existing = {}
-
-    if "mcpServers" not in existing:
-        existing["mcpServers"] = {}
-    existing["mcpServers"]["datafrey"] = DATAFREY_MCP_CONFIG
-
-    config_path.parent.mkdir(parents=True, exist_ok=True)
-    config_path.write_text(json.dumps(existing, indent=2) + "\n")
