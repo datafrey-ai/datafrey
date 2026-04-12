@@ -44,13 +44,13 @@ Then ask anything with `/db` in Claude Code.
 
 ## How it works
 
-1. **Authenticate** — OAuth login via browser. Tokens are stored in your OS keychain, never in plaintext on disk.
+1. **Authenticate** — Log in with your Datafrey account via browser.
 
-2. **Connect** — Credentials are encrypted client-side (AES-256-GCM + RSA-OAEP) before leaving your machine and stored in a per-tenant secrets vault.
+2. **Set up your database** — Connect your database and let Datafrey index its schema so your AI client understands what to query.
 
-3. **Index** — The CLI analyzes your schema and builds a column index for the planning skill. This happens automatically during onboarding; re-run `datafrey index` whenever your schema changes.
+3. **Set up your AI client** — Install Datafrey into Claude Code, Cursor, or any MCP-compatible client.
 
-4. **Query** — Use `/db` in Claude Code to ask questions in natural language. Simple queries run directly; complex ones go through a planning step that uses the index to produce accurate SQL.
+4. **Ask your database** — Use the `/db` skill to ask your database anything.
 
 ---
 
