@@ -10,7 +10,7 @@ import typer
 import datafrey
 from datafrey.exceptions import DatafreyError
 from datafrey.ui.console import console, err_console
-from datafrey.ui.display import print_docs_link, print_error, print_success
+from datafrey.ui.display import print_error, print_success
 
 app = typer.Typer(
     name="datafrey",
@@ -233,7 +233,6 @@ def doctor() -> None:
         err_console.print("  [dim]→ Run 'datafrey login' to sign in.[/]")
         all_ok = False
 
-    print_docs_link("troubleshooting")
     raise typer.Exit(0 if all_ok else 1)
 
 

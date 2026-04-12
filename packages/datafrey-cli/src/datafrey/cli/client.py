@@ -10,7 +10,6 @@ import typer
 
 from datafrey.ui.console import console
 from datafrey.ui.display import (
-    print_docs_link,
     print_hint,
     print_success,
     show_mcp_config,
@@ -108,7 +107,6 @@ def _setup_custom() -> None:
 def _print_footer() -> None:
     console.print()
     console.print("Authentication handled automatically when MCP client connects.")
-    print_docs_link("mcp")
 
 
 def _run_interactive_menu() -> None:

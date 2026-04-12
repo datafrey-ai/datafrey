@@ -186,7 +186,6 @@ def show_connection_result(
     console.print(f"  Provider: {provider}")
     console.print(f"  Host:     {host}")
     console.print(f"  Status:   {status}")
-    print_docs_link("mcp")
 
 
 def show_mcp_config(config_json: str) -> None:
