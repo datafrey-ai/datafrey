@@ -72,14 +72,14 @@ class SnowflakeProvider(DatabaseProvider):
         auth = (pre_choices or {}).get("auth_method", "pat")
 
         console.print()
-        console.print("[dim]To list your databases:[/] [bold]SHOW DATABASES;[/]")
+        console.print("[dim]To list your databases:[/] [bold cyan]SHOW DATABASES;[/]")
         database = prompt_text("Database name:")
         console.print(
             "[dim]You can connect more databases later.[/]"
         )
 
         console.print()
-        console.print("[dim]To list your warehouses:[/] [bold]SHOW WAREHOUSES;[/]")
+        console.print("[dim]To list your warehouses:[/] [bold cyan]SHOW WAREHOUSES;[/]")
         console.print(
             "[dim]This warehouse will execute all LLM queries "
             "— pick one sized for your workload.[/]"
@@ -113,11 +113,11 @@ class SnowflakeProvider(DatabaseProvider):
             "[dim]To find your account identifier, run in Snowflake:[/]"
         )
         console.print(
-            "[bold]SELECT CURRENT_ORGANIZATION_NAME() || '-' "
+            "[bold cyan]SELECT CURRENT_ORGANIZATION_NAME() || '-' "
             "|| CURRENT_ACCOUNT_NAME();[/]"
         )
         console.print(
-            "[dim]Expected format:[/] [bold]orgname-accountname[/] "
+            "[dim]Expected format:[/] [bold cyan]orgname-accountname[/] "
             "[dim](e.g. myorg-myaccount)[/]"
         )
         account = prompt_text(
