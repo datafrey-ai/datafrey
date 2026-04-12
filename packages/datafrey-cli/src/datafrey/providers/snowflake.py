@@ -63,22 +63,23 @@ class SnowflakeProvider(DatabaseProvider):
     name = "snowflake"
     display_name = "Snowflake"
 
-    def collect_setup_choices(self) -> dict:
-        auth_choice = prompt_select(
-            "Authentication method:",
-            choices=["Programmatic Access Token (PAT)", "RSA Key Pair"],
-        )
-        auth = "pat" if "PAT" in auth_choice else "keypair"
+    def collect_auth_method(self) -> dict:
+        # Only one option — auto-select without prompting
+        console.print("Authentication method: Programmatic Access Token (PAT)")
+        return {"auth_method": "pat"}
+
+    def collect_setup_choices(self, pre_choices: dict | None = None) -> dict:
+        auth = (pre_choices or {}).get("auth_method", "pat")
 
         console.print()
-        console.print("[dim]To list your databases:[/] [bold]SHOW DATABASES;[/]")
+        console.print("[dim]To list your databases:[/] [bold cyan]SHOW DATABASES;[/]")
         database = prompt_text("Database name:")
         console.print(
             "[dim]You can connect more databases later.[/]"
         )
 
         console.print()
-        console.print("[dim]To list your warehouses:[/] [bold]SHOW WAREHOUSES;[/]")
+        console.print("[dim]To list your warehouses:[/] [bold cyan]SHOW WAREHOUSES;[/]")
         console.print(
             "[dim]This warehouse will execute all LLM queries "
             "— pick one sized for your workload.[/]"
@@ -112,11 +113,11 @@ class SnowflakeProvider(DatabaseProvider):
             "[dim]To find your account identifier, run in Snowflake:[/]"
         )
         console.print(
-            "[bold]SELECT CURRENT_ORGANIZATION_NAME() || '-' "
+            "[bold cyan]SELECT CURRENT_ORGANIZATION_NAME() || '-' "
             "|| CURRENT_ACCOUNT_NAME();[/]"
         )
         console.print(
-            "[dim]Expected format:[/] [bold]orgname-accountname[/] "
+            "[dim]Expected format:[/] [bold cyan]orgname-accountname[/] "
             "[dim](e.g. myorg-myaccount)[/]"
         )
         account = prompt_text(
@@ -124,8 +125,7 @@ class SnowflakeProvider(DatabaseProvider):
         )
         username = prompt_text("Username:", default="DATAFREY_USER")
         role = prompt_text("Role:", default="DATAFREY_ROLE")
-        default_name = f"{account.split('.')[0]}-db"
-        name = prompt_text("Connection Name:", default=default_name)
+        name = f"{account.split('.')[0]}-db"
 
         base = {
             "account": account,

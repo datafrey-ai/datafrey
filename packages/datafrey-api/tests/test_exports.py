@@ -9,7 +9,6 @@ EXPECTED_SYMBOLS = {
     "DatabaseCreated",
     "DatabaseCreate",
     "EncryptedCredentials",
-    "PostgresCredentials",
     "PublicKeyResponse",
     "SnowflakeCredentials",
     "SnowflakeKeyPairCredentials",

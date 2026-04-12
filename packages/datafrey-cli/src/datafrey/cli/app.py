@@ -10,12 +10,12 @@ import typer
 import datafrey
 from datafrey.exceptions import DatafreyError
 from datafrey.ui.console import console, err_console
-from datafrey.ui.display import print_docs_link, print_error, print_success
+from datafrey.ui.display import print_error, print_success
 
 app = typer.Typer(
     name="datafrey",
-    help="Manage database connections and MCP servers.",
-    no_args_is_help=True,
+    help="Manage database connections and AI client plugins.",
+    invoke_without_command=True,
     add_completion=True,
     rich_markup_mode="rich",
 )
@@ -29,6 +29,7 @@ def version_callback(value: bool) -> None:
 
 @app.callback()
 def _app_callback(
+    ctx: typer.Context,
     version: Annotated[
         Optional[bool],
         typer.Option(
@@ -42,6 +43,8 @@ def _app_callback(
 ) -> None:
     """Datafrey CLI — connect your database, query it from any AI."""
     _check_first_run()
+    if ctx.invoked_subcommand is None:
+        login()
 
 
 def _check_first_run() -> None:
@@ -74,14 +77,9 @@ def login(
     try:
         existing = token_store.get_access_token()
         if existing:
-            import jwt
-
-            payload = jwt.decode(existing, options={"verify_signature": False})
-            email = payload.get("email", "unknown")
-            err_console.print(
-                f"Already logged in as {email}. Run 'datafrey logout' first."
-            )
-            raise typer.Exit(0)
+            relogin = typer.confirm("Already logged in. Re-login?", default=False)
+            if not relogin:
+                raise typer.Exit(0)
     except DatafreyError:
         pass  # Keyring issues — proceed with login
 
@@ -125,23 +123,38 @@ def status(
         bool, typer.Option("--json", help="Output as JSON.")
     ] = False,
 ) -> None:
-    """Show current authentication status."""
+    """Show authentication, database, and index status."""
     from datafrey.auth.middleware import get_authenticated_client
     from datafrey.ui.display import print_json_success, show_status
 
     with get_authenticated_client() as client:
         resp = client.get_status()
+        databases = client.list_databases()
+        db = databases[0] if databases else None
+        index_status = None
+        if db and db.status.value == "connected":
+            try:
+                index_status = client.get_index_status(db.id)
+            except Exception:
+                pass
 
     if json_output:
-        print_json_success(
-            {
-                "authenticated": True,
-                "user": {"email": resp.user.email, "name": resp.user.name},
-                "databases_count": resp.databases_count,
+        data: dict = {
+            "authenticated": True,
+            "user": {"email": resp.user.email, "name": resp.user.name},
+            "databases_count": resp.databases_count,
+        }
+        if db:
+            data["database"] = {
+                "name": db.name,
+                "host": db.host,
+                "status": db.status.value,
             }
-        )
+        if index_status is not None:
+            data["index"] = index_status.model_dump(mode="json")
+        print_json_success(data)
     else:
-        show_status(resp.user.email, resp.user.name, resp.databases_count)
+        show_status(resp.user.email, resp.user.name, db, index_status)
 
 
 @app.command(hidden=True)
@@ -220,19 +233,18 @@ def doctor() -> None:
         err_console.print("  [dim]→ Run 'datafrey login' to sign in.[/]")
         all_ok = False
 
-    print_docs_link("troubleshooting")
     raise typer.Exit(0 if all_ok else 1)
 
 
 # ── Register subgroups ──
 
+from datafrey.cli.client import client_app  # noqa: E402
 from datafrey.cli.db import db_app  # noqa: E402
-from datafrey.cli.index import index_app  # noqa: E402
-from datafrey.cli.mcp import mcp_app  # noqa: E402
+from datafrey.cli.index import index_command  # noqa: E402
 
 app.add_typer(db_app, name="db", help="Manage database connections.")
-app.add_typer(index_app, name="index", help="Manage the database schema index.")
-app.add_typer(mcp_app, name="mcp", help="Configure MCP clients.")
+app.command("index", help="Sync the database schema index.")(index_command)
+app.add_typer(client_app, name="client", help="Configure an AI client to use Datafrey.")
 
 
 # ── Entry point with global error handling ──

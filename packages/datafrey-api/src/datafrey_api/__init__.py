@@ -3,7 +3,6 @@ from datafrey_api.agent.run import RunRequest, RunResponse
 from datafrey_api.common import DatabaseStatus, Provider
 from datafrey_api.errors import ApiError, ErrorCode
 from datafrey_api.manage.credentials import (
-    PostgresCredentials,
     SnowflakeCredentials,
     SnowflakeKeyPairCredentials,
     SnowflakePATCredentials,
@@ -26,7 +25,6 @@ __all__ = [
     "DatabaseCreated",
     "DatabaseCreate",
     "EncryptedCredentials",
-    "PostgresCredentials",
     "PublicKeyResponse",
     "SnowflakeCredentials",
     "SnowflakeKeyPairCredentials",

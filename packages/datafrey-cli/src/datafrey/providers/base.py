@@ -15,9 +15,16 @@ class DatabaseProvider(ABC):
     name: str
     display_name: str
 
+    def collect_auth_method(self) -> dict:
+        """Auto-select or prompt for auth method. Returns partial choices dict."""
+        return {}
+
     @abstractmethod
-    def collect_setup_choices(self) -> dict:
-        """Prompt user for setup choices (auth method, access scope, etc.)."""
+    def collect_setup_choices(self, pre_choices: dict | None = None) -> dict:
+        """Prompt user for setup choices (database, warehouse, etc.).
+
+        *pre_choices* may contain values already collected (e.g. auth_method).
+        """
         ...
 
     @abstractmethod
@@ -37,12 +44,11 @@ class DatabaseProvider(ABC):
 
 
 def get_provider_choices() -> list[Choice]:
-    """Return questionary choices with disabled items for coming-soon providers."""
+    """Return questionary choices for supported providers."""
     from questionary import Choice
 
     return [
         Choice("Snowflake", value="snowflake"),
-        Choice("PostgreSQL (coming soon)", value="postgres", disabled="coming soon"),
     ]
 
 

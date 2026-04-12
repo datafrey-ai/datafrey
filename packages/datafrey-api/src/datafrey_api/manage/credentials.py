@@ -81,27 +81,11 @@ _SNOWFLAKE_ADAPTER: TypeAdapter = TypeAdapter(SnowflakeCredentials)
 
 
 # ---------------------------------------------------------------------------
-# PostgreSQL (placeholder — expand when postgres provider is implemented)
-# ---------------------------------------------------------------------------
-
-
-class PostgresCredentials(BaseModel):
-    """Plaintext PostgreSQL credential fields."""
-
-    host: Annotated[str, StringConstraints(min_length=1, strip_whitespace=True)]
-    port: int = Field(default=5432, ge=1, le=65535)
-    username: Annotated[str, StringConstraints(min_length=1, strip_whitespace=True)]
-    password: Annotated[str, StringConstraints(min_length=1)] = Field(repr=False)
-    database: Annotated[str, StringConstraints(min_length=1, strip_whitespace=True)]
-
-
-# ---------------------------------------------------------------------------
 # Registry
 # ---------------------------------------------------------------------------
 
 _CREDENTIAL_SCHEMAS = {
     Provider.snowflake: _SNOWFLAKE_ADAPTER,
-    Provider.postgres: PostgresCredentials,
 }
 
 

@@ -39,7 +39,7 @@ This plugin is Claude Code specific. The underlying MCP server works with any MC
 
 ```
 pip install datafrey
-datafrey mcp setup
+datafrey client
 ```
 
 ## License

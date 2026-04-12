@@ -7,7 +7,6 @@ import os
 
 from datafrey.ui.console import err_console
 from datafrey.ui.display import (
-    print_docs_link,
     print_success,
     show_onboarding_panel,
 )
@@ -94,7 +93,6 @@ def encrypt_and_submit(
     encrypted = encrypt_credentials(sensitive, pubkey_resp.public_key, aad=aad)
 
     print_success("Credentials encrypted (AES-256-GCM + RSA-OAEP) before transmission")
-    print_docs_link("encryption")
 
     # Clear sensitive data
     del sensitive

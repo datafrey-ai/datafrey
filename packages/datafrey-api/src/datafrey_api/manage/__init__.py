@@ -1,5 +1,4 @@
 from datafrey_api.manage.credentials import (
-    PostgresCredentials,
     SnowflakeCredentials,
     SnowflakeKeyPairCredentials,
     SnowflakePATCredentials,
@@ -21,7 +20,6 @@ __all__ = [
     "DatabaseCreated",
     "DatabaseRecord",
     "EncryptedCredentials",
-    "PostgresCredentials",
     "PublicKeyResponse",
     "SnowflakeCredentials",
     "SnowflakeKeyPairCredentials",
