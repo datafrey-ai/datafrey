@@ -56,26 +56,20 @@ Then ask anything with `/db` in Claude Code.
 
 ## Commands
 
-| Command | Description |
-| --- | --- |
-| `datafrey login` | Authenticate with Datafrey |
-| `datafrey logout` | Remove stored credentials |
-| `datafrey status` | Show auth, database, and index status |
-| `datafrey db connect` | Connect a new database (interactive) |
-| `datafrey db list` | List connected databases |
-<<<<<<< HEAD
-| `datafrey db drop` | Remove a connected database |
-| `datafrey index sync` | Build or refresh the column index (required for planning) |
-| `datafrey index status` | Show index status (tables, columns, last indexed) |
-| `datafrey client` | Configure an AI client to use Datafrey |
-=======
-| `datafrey db drop` | Remove the connected database |
-| `datafrey index` | Sync the database schema index |
-| `datafrey client claude` | Configure Claude Code |
-| `datafrey client cursor` | Configure Cursor |
+| Command | Description                                          |
+| --- |------------------------------------------------------|
+| `datafrey login` | Authenticate with Datafrey                           |
+| `datafrey logout` | Remove stored credentials                            |
+| `datafrey status` | Show auth, database, and index status                |
+| `datafrey db connect` | Connect a new database (interactive)                 |
+| `datafrey db list` | List connected databases                             |
+| `datafrey db drop` | Remove the connected database                        |
+| `datafrey index` | Sync the database schema index                       |
+| `datafrey client` | Set up an AI client (interactive)                                 |
+| `datafrey client claude` | Configure Claude Code                                |
+| `datafrey client cursor` | Configure Cursor                                     |
 | `datafrey client mcp` | Print MCP config block for any MCP-compatible client |
->>>>>>> 89193d3ed24651d867630a97fd5df63b1dd18465
-| `datafrey doctor` | Check environment and connectivity |
+| `datafrey doctor` | Check environment and connectivity                   |
 
 ---
 
