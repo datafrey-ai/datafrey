@@ -240,10 +240,10 @@ def doctor() -> None:
 
 from datafrey.cli.client import client_app  # noqa: E402
 from datafrey.cli.db import db_app  # noqa: E402
-from datafrey.cli.index import index_command  # noqa: E402
+from datafrey.cli.index import index_app  # noqa: E402
 
 app.add_typer(db_app, name="db", help="Manage database connections.")
-app.command("index", help="Sync the database schema index.")(index_command)
+app.add_typer(index_app, name="index", help="Manage the database schema index.")
 app.add_typer(client_app, name="client", help="Configure an AI client to use Datafrey.")
 
 

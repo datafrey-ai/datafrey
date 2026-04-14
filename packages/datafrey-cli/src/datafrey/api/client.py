@@ -78,6 +78,9 @@ class HttpApiClient:
     def reindex_database(self, db_id: str) -> None:
         self._request("POST", f"/databases/{db_id}/reindex")
 
+    def drop_index(self, db_id: str) -> None:
+        self._request("DELETE", f"/databases/{db_id}/index")
+
     def get_index_status(self, db_id: str) -> IndexStatus:
         resp = self._request("GET", f"/databases/{db_id}/index-status")
         return IndexStatus.model_validate(resp.json())
