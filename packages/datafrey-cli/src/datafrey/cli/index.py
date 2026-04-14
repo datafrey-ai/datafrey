@@ -37,6 +37,8 @@ def _do_reindex() -> None:
         client.reindex_database(databases[0].id)
 
     print_success("Indexing started.")
+    from datafrey.ui.display import print_hint
+    print_hint("Run 'datafrey status' to check progress.")
 
 
 @index_app.command("drop")

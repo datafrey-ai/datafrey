@@ -129,37 +129,49 @@ def show_databases_table(databases: list) -> None:
     console.print(table)
 
 
-def show_status(email: str, name: str, db=None, index_status=None) -> None:
-    console.print(f"User:       {email} ({name})")
+def render_status(email: str, name: str, db=None, index_status=None):
+    """Return a Rich renderable for the status display (usable inside Live)."""
+    from rich.console import Group
+    from rich.text import Text
+
+    def _t(markup: str) -> Text:
+        return Text.from_markup(markup)
+
+    lines: list = [_t(f"User:       {email} ({name})")]
     if db is None:
-        console.print("Database:   [dim]none[/]")
-        print_hint("Run 'datafrey db connect' to add one.")
-        return
+        lines.append(_t("Database:   [dim]none[/]"))
+        lines.append(_t("[dim]Tip: Run 'datafrey db connect' to add one.[/]"))
+        return Group(*lines)
     db_connected = db.status.value == "connected"
     status_label = "" if db_connected else f" [{db.status.value}]"
-    console.print(f"Database:   {db.host}{status_label}")
+    lines.append(_t(f"Database:   {db.host}{status_label}"))
     if not db_connected:
-        console.print("Index:      [dim]not available (database not connected)[/]")
-        return
+        lines.append(_t("Index:      [dim]not available (database not connected)[/]"))
+        return Group(*lines)
     if index_status is None:
-        console.print("Index:      [dim]not built[/]")
-        print_hint("Run 'datafrey index' to build the index.")
-        return
+        lines.append(_t("Index:      [dim]not built[/]"))
+        lines.append(_t("[dim]Tip: Run 'datafrey index' to build the index.[/]"))
+        return Group(*lines)
     if index_status.is_indexing:
         done = index_status.tables_done
         total = index_status.tables_total
         current = index_status.current_table
         progress_str = f"{done}/{total} tables" if done is not None and total is not None else "…"
         suffix = f" · {current}" if current else ""
-        console.print(f"Index:      [yellow]indexing…[/] {progress_str}{suffix}")
-        return
+        lines.append(_t(f"Index:      [yellow]indexing… {progress_str}{suffix}[/]"))
+        return Group(*lines)
     if index_status.indexed_at is None:
-        console.print("Index:      [dim]not built[/]")
-        print_hint("Run 'datafrey index' to build the index.")
-        return
-    console.print(f"Indexed:    {index_status.indexed_at.strftime('%Y-%m-%d %H:%M UTC')}")
-    console.print(f"Tables:     {index_status.table_count}")
-    console.print(f"Columns:    {index_status.column_count}")
+        lines.append(_t("Index:      [dim]not built[/]"))
+        lines.append(_t("[dim]Tip: Run 'datafrey index' to build the index.[/]"))
+        return Group(*lines)
+    lines.append(_t(f"Indexed:    {index_status.indexed_at.strftime('%Y-%m-%d %H:%M UTC')}"))
+    lines.append(_t(f"Tables:     {index_status.table_count}"))
+    lines.append(_t(f"Columns:    {index_status.column_count}"))
+    return Group(*lines)
+
+
+def show_status(email: str, name: str, db=None, index_status=None) -> None:
+    console.print(render_status(email, name, db, index_status))
 
 
 def show_review_panel(fields: dict[str, str]) -> None:

@@ -124,8 +124,12 @@ def status(
     ] = False,
 ) -> None:
     """Show authentication, database, and index status."""
+    import time
+
+    from rich.live import Live
+
     from datafrey.auth.middleware import get_authenticated_client
-    from datafrey.ui.display import print_json_success, show_status
+    from datafrey.ui.display import print_json_success, render_status, show_status
 
     with get_authenticated_client() as client:
         resp = client.get_status()
@@ -138,23 +142,40 @@ def status(
             except Exception:
                 pass
 
-    if json_output:
-        data: dict = {
-            "authenticated": True,
-            "user": {"email": resp.user.email, "name": resp.user.name},
-            "databases_count": resp.databases_count,
-        }
-        if db:
-            data["database"] = {
-                "name": db.name,
-                "host": db.host,
-                "status": db.status.value,
+        if json_output:
+            data: dict = {
+                "authenticated": True,
+                "user": {"email": resp.user.email, "name": resp.user.name},
+                "databases_count": resp.databases_count,
             }
-        if index_status is not None:
-            data["index"] = index_status.model_dump(mode="json")
-        print_json_success(data)
-    else:
-        show_status(resp.user.email, resp.user.name, db, index_status)
+            if db:
+                data["database"] = {
+                    "name": db.name,
+                    "host": db.host,
+                    "status": db.status.value,
+                }
+            if index_status is not None:
+                data["index"] = index_status.model_dump(mode="json")
+            print_json_success(data)
+        elif index_status and index_status.is_indexing:
+            with Live(
+                render_status(resp.user.email, resp.user.name, db, index_status),
+                console=console,
+                refresh_per_second=2,
+            ) as live:
+                while True:
+                    time.sleep(0.5)
+                    try:
+                        index_status = client.get_index_status(db.id)
+                    except Exception:
+                        pass
+                    live.update(
+                        render_status(resp.user.email, resp.user.name, db, index_status)
+                    )
+                    if not index_status.is_indexing:
+                        break
+        else:
+            show_status(resp.user.email, resp.user.name, db, index_status)
 
 
 @app.command(hidden=True)
