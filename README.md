@@ -65,6 +65,7 @@ Then ask anything with `/db` in Claude Code.
 | `datafrey db list` | List connected databases                             |
 | `datafrey db drop` | Remove the connected database                        |
 | `datafrey index` | Sync the database schema index                       |
+| `datafrey index drop` | Drop the database schema index                       |
 | `datafrey client` | Set up an AI client (interactive)                                 |
 | `datafrey client claude` | Configure Claude Code                                |
 | `datafrey client cursor` | Configure Cursor                                     |
