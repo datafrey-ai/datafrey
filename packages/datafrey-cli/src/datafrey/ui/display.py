@@ -141,7 +141,19 @@ def show_status(email: str, name: str, db=None, index_status=None) -> None:
     if not db_connected:
         console.print("Index:      [dim]not available (database not connected)[/]")
         return
-    if index_status is None or index_status.indexed_at is None:
+    if index_status is None:
+        console.print("Index:      [dim]not built[/]")
+        print_hint("Run 'datafrey index' to build the index.")
+        return
+    if index_status.is_indexing:
+        done = index_status.tables_done
+        total = index_status.tables_total
+        current = index_status.current_table
+        progress_str = f"{done}/{total} tables" if done is not None and total is not None else "…"
+        suffix = f" · {current}" if current else ""
+        console.print(f"Index:      [yellow]indexing…[/] {progress_str}{suffix}")
+        return
+    if index_status.indexed_at is None:
         console.print("Index:      [dim]not built[/]")
         print_hint("Run 'datafrey index' to build the index.")
         return
@@ -195,6 +207,14 @@ def show_mcp_config(config_json: str) -> None:
 
 def show_index_status(index_status) -> None:
     """Display index status in a readable format."""
+    if index_status.is_indexing:
+        done = index_status.tables_done
+        total = index_status.tables_total
+        current = index_status.current_table
+        progress_str = f"{done}/{total} tables" if done is not None and total is not None else "…"
+        suffix = f" · {current}" if current else ""
+        console.print(f"Index:      [yellow]indexing…[/] {progress_str}{suffix}")
+        return
     if index_status.indexed_at is None:
         console.print("Index:      [dim]not built[/]")
         print_hint("Run 'datafrey index' to build the index.")
