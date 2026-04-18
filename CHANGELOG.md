@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0] - 2026-04-18
+
+### Security
+
+- Keyring backend allow-list (OS-native only); reject third-party fallbacks.
+- Config writes atomic; refuse symlinks and non-owner files; enforce 0o600.
+- Sanitize server error strings (strip ANSI, bound length, escape Rich markup).
+- Publish workflow: SHA-pin actions, validate tag version, pass inputs via env.
+
+### Changed
+
+- Tighten dependency upper bounds across all packages.
+- First PyPI release of `datafrey-mcp` and `datafrey-mock`.
+
 ## [0.2.0] - 2026-04-08
 
 ### Added
