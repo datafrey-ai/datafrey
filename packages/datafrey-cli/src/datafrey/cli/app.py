@@ -103,12 +103,7 @@ def login(
     user = result.get("user", {})
     workos_sub = extract_workos_sub(result["access_token"])
     if workos_sub:
-        identify_user(
-            workos_sub,
-            email=user.get("email"),
-            first_name=user.get("first_name"),
-            last_name=user.get("last_name"),
-        )
+        identify_user(workos_sub)
     track(LOGIN_COMPLETED, identified=bool(workos_sub))
 
     name = user.get("first_name", "")

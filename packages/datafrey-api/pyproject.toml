@@ -6,7 +6,7 @@ license = "Apache-2.0"
 requires-python = ">=3.13"
 authors = [{name = "DataFrey", email = "slava@datafrey.ai"}]
 
-dependencies = ["pydantic[email]>=2.0"]
+dependencies = ["pydantic[email]>=2.9,<3"]
 
 [project.urls]
 Homepage = "https://datafrey.ai"

@@ -6,20 +6,35 @@ SERVICE_NAME = "datafrey"
 ACCESS_TOKEN_KEY = "datafrey:access_token"
 REFRESH_TOKEN_KEY = "datafrey:refresh_token"
 
-INSECURE_BACKEND_PATTERNS = ["Plaintext", "Null"]
+# Allow-list of OS-native keyring backends keyed by module.classname. Using
+# the qualified name (not just the class __name__) prevents a third-party
+# `keyrings.alt.*` backend (Plaintext, Null, RegistryKeyring, EncryptedKeyring)
+# from matching a bare name like "Keyring" by accident.
+ALLOWED_BACKENDS: frozenset[str] = frozenset({
+    "keyring.backends.macOS.Keyring",
+    "keyring.backends.Windows.WinVaultKeyring",
+    "keyring.backends.SecretService.Keyring",
+    "keyring.backends.libsecret.Keyring",
+    "keyring.backends.kwallet.DBusKeyring",
+})
+
+
+def _backend_qualname(backend) -> str:
+    cls = type(backend)
+    return f"{cls.__module__}.{cls.__name__}"
 
 
 def _check_keyring_backend() -> str:
-    """Validate keyring backend is secure. Returns backend name."""
+    """Validate keyring backend against allow-list. Returns class name."""
     import keyring
 
     from datafrey.exceptions import InsecureKeyringError
 
     backend = keyring.get_keyring()
-    backend_name = type(backend).__name__
-    if any(p in backend_name for p in INSECURE_BACKEND_PATTERNS):
-        raise InsecureKeyringError(backend_name)
-    return backend_name
+    qualname = _backend_qualname(backend)
+    if qualname not in ALLOWED_BACKENDS:
+        raise InsecureKeyringError(qualname)
+    return type(backend).__name__
 
 
 def get_access_token() -> str | None:
@@ -39,12 +54,25 @@ def get_refresh_token() -> str | None:
 
 
 def store_tokens(access_token: str, refresh_token: str) -> str:
-    """Store both tokens in keyring. Returns backend name for trust signal."""
+    """Store both tokens in keyring.
+
+    Rolls back the access-token write if the refresh-token write fails so
+    the stored pair is never out of sync.
+
+    Returns backend class name for trust signalling.
+    """
     import keyring
 
     backend_name = _check_keyring_backend()
     keyring.set_password(SERVICE_NAME, ACCESS_TOKEN_KEY, access_token)
-    keyring.set_password(SERVICE_NAME, REFRESH_TOKEN_KEY, refresh_token)
+    try:
+        keyring.set_password(SERVICE_NAME, REFRESH_TOKEN_KEY, refresh_token)
+    except Exception:
+        try:
+            keyring.delete_password(SERVICE_NAME, ACCESS_TOKEN_KEY)
+        except Exception:
+            pass
+        raise
     return backend_name
 
 

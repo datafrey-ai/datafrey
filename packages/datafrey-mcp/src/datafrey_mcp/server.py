@@ -11,7 +11,7 @@ from fastmcp.server.dependencies import get_access_token
 from starlette.requests import Request
 from starlette.responses import PlainTextResponse
 
-from datafrey_api import PlanRequest, PlanResponse, RunRequest, RunResponse
+from datafrey_api import PlanRequest, RunRequest
 
 from datafrey_mcp.agent_client import AgentApiClient
 from datafrey_mcp.config import (
@@ -56,7 +56,7 @@ def create_server(
             "- plan: generates a verified query plan from a natural language question using "
             "the database column index. Use this when the correct SQL is not immediately "
             "obvious — unfamiliar schema, complex joins, or ambiguous column names. "
-            "Requires the index to be built first (`datafrey index sync`).\n"
+            "Requires the index to be built first (`datafrey index`).\n"
             "- run: executes SQL against the connected database.\n\n"
             "Workflow: for simple questions, write SQL and call run directly. "
             "For complex questions, call plan first, then run the SQL it produces."

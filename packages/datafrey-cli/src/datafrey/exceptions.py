@@ -25,9 +25,13 @@ class SessionExpiredError(DatafreyError):
 class InsecureKeyringError(DatafreyError):
     def __init__(self, backend_name: str) -> None:
         super().__init__(
-            f"No secure keyring available ({backend_name} detected).",
+            f"Keyring backend '{backend_name}' is not on the allow-list.",
             hint=(
-                "Linux: Install and unlock GNOME Keyring or KWallet.\n"
+                "Datafrey requires an OS-native keyring:\n"
+                "  macOS:   Keychain (built-in)\n"
+                "  Windows: Credential Locker (built-in)\n"
+                "  Linux:   GNOME Keyring, KWallet, or libsecret\n\n"
+                "On Linux, install and unlock your keyring service, then retry.\n"
                 "See: https://docs.datafrey.ai"
             ),
         )
@@ -66,8 +70,13 @@ class FingerprintMismatchError(DatafreyError):
             hint=(
                 f"Expected: {expected}\n"
                 f"Got:      {got}\n\n"
-                "This could indicate a man-in-the-middle attack.\n"
-                "Do NOT proceed. Contact slava+security@datafrey.ai."
+                "Most likely the server key was rotated and your CLI is out of date.\n"
+                "Upgrade and retry:\n"
+                "  pip install -U datafrey\n"
+                "  # or:\n"
+                "  uv tool upgrade datafrey\n\n"
+                "If upgrading doesn't resolve it, this could indicate a MITM attack.\n"
+                "Do NOT proceed. Email slava+security@datafrey.ai."
             ),
         )
 

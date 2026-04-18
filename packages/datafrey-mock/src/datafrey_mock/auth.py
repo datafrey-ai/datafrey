@@ -1,4 +1,9 @@
-"""Auth dependency: accept any Bearer token."""
+"""Auth dependency: accept any Bearer token.
+
+DEVELOPMENT ONLY. The mock server accepts any Bearer token as valid so the
+CLI can be exercised without a live WorkOS environment. This module must
+never run in a context reachable from the public internet.
+"""
 
 from __future__ import annotations
 

@@ -33,6 +33,7 @@ class HttpApiClient:
             base_url=self._base_url,
             headers={"Authorization": f"Bearer {token}"},
             timeout=_TIMEOUT,
+            follow_redirects=False,
         )
 
     def _request(self, method: str, path: str, **kwargs) -> httpx.Response:
@@ -44,19 +45,19 @@ class HttpApiClient:
         return self._do_request(method, path, **kwargs)
 
     def _do_request(self, method: str, path: str, **kwargs) -> httpx.Response:
-        last_exc: Exception | None = None
         for attempt in range(_MAX_RETRIES + 1):
             try:
                 resp = self._client.request(method, path, **kwargs)
-            except (httpx.ConnectError, httpx.TimeoutException) as exc:
-                last_exc = exc
+            except (httpx.ConnectError, httpx.TimeoutException):
                 if attempt < _MAX_RETRIES:
                     time.sleep(_RETRY_BACKOFF * (2**attempt))
                     continue
-                raise NetworkError(self._base_url) from last_exc
+                # Drop the chain: the underlying httpx exception holds the
+                # outbound Request (with its Authorization header).
+                raise NetworkError(self._base_url) from None
             raise_for_status(resp)
             return resp
-        raise NetworkError(self._base_url) from last_exc  # unreachable, keeps mypy happy
+        raise NetworkError(self._base_url) from None  # unreachable, keeps mypy happy
 
     # ── Management endpoints ──
 

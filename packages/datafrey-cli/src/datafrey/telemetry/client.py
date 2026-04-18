@@ -17,22 +17,19 @@ _TRUTHY = ("1", "true", "yes", "on")
 _CI_VARS = ("CI", "GITHUB_ACTIONS", "CIRCLECI", "GITLAB_CI", "BUILDKITE", "TRAVIS")
 
 _client_instance: Any = None
-_disabled_cached: bool | None = None
 
 
 def is_disabled() -> bool:
-    """True if telemetry is opt'd out or no key is configured."""
-    global _disabled_cached
-    if _disabled_cached is not None:
-        return _disabled_cached
+    """True if telemetry is opt'd out or no key is configured.
+
+    Re-read on every call so toggling DATAFREY_TELEMETRY_DISABLED or
+    DO_NOT_TRACK mid-session takes effect immediately.
+    """
     if not POSTHOG_PROJECT_KEY or POSTHOG_PROJECT_KEY.startswith("phc_REPLACE"):
-        _disabled_cached = True
         return True
     for var in _OPT_OUT_VARS:
         if os.environ.get(var, "").strip().lower() in _TRUTHY:
-            _disabled_cached = True
             return True
-    _disabled_cached = False
     return False
 
 
