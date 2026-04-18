@@ -40,7 +40,7 @@ jobs:
           VERSION="${BASH_REMATCH[1]}"
           # Reject anything that isn't a plain semver-ish string before it
           # flows into downstream shell / sed / gh commands.
-          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+([a-zA-Z0-9.\-+]*)?$ ]]; then
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+([a-zA-Z0-9.+-]*)?$ ]]; then
             echo "::error::Invalid version format: $VERSION"; exit 1
           fi
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
