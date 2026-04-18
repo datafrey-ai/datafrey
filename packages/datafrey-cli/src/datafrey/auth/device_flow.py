@@ -117,7 +117,14 @@ def start_device_flow(no_browser: bool = False) -> dict:
 
 
 def refresh_access_token(refresh_token: str) -> dict:
-    """Exchange a refresh token for new tokens. Returns {access_token, refresh_token}."""
+    """Exchange a refresh token for new tokens.
+
+    Returns {access_token, refresh_token} on success.
+    Returns {} on explicit auth rejection (400/401) — caller should clear
+    stored tokens and require re-authentication.
+    Propagates httpx errors on network failure or 5xx — caller should keep
+    stored tokens and retry rather than log the user out.
+    """
     resp = httpx.post(
         TOKEN_URL,
         json={
@@ -127,8 +134,9 @@ def refresh_access_token(refresh_token: str) -> dict:
         },
         timeout=10.0,
     )
-    if not resp.is_success:
+    if resp.status_code in (400, 401):
         return {}
+    resp.raise_for_status()
     data = resp.json()
     return {
         "access_token": data["access_token"],

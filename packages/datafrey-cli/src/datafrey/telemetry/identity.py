@@ -46,13 +46,12 @@ def extract_workos_sub(access_token: str) -> str | None:
         return None
 
 
-def identify_user(
-    workos_sub: str,
-    email: str | None = None,
-    first_name: str | None = None,
-    last_name: str | None = None,
-) -> None:
-    """Alias anon→workos_sub and set user properties on PostHog.
+def identify_user(workos_sub: str) -> None:
+    """Alias anon→workos_sub on PostHog.
+
+    Sends only the pseudonymous WorkOS `sub`. Email/name stay in WorkOS;
+    resolve via GET /user_management/users/{sub} when actually needed,
+    so a PostHog compromise can't leak user identities.
 
     Full no-op when telemetry is disabled — no local state, no network.
     """
@@ -66,15 +65,6 @@ def identify_user(
         if client is None:
             return
         client.alias(previous_id=anon, distinct_id=workos_sub)
-        props: dict[str, str] = {}
-        if email:
-            props["email"] = email
-        if first_name:
-            props["first_name"] = first_name
-        if last_name:
-            props["last_name"] = last_name
-        if props:
-            client.identify(distinct_id=workos_sub, properties=props)
         set_workos_user_id(workos_sub)
     except Exception:
         pass

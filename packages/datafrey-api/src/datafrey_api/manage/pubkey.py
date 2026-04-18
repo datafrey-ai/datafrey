@@ -17,5 +17,5 @@ class PublicKeyResponse(BaseModel):
     @classmethod
     def validate_fingerprint(cls, v: str) -> str:
         if not _FINGERPRINT_RE.match(v):
-            raise ValueError("fingerprint must match ^SHA256:[A-Za-z0-9+/=]{43}$")
+            raise ValueError("fingerprint must match ^SHA256:[A-Za-z0-9+/=]{44}$")
         return v

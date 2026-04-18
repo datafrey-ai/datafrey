@@ -13,8 +13,10 @@ jobs:
     runs-on: ubuntu-latest
     environment: pypi
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
+      # Third-party actions are SHA-pinned. Dependabot keeps these current
+      # (see .github/dependabot.yml).
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+      - uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86  # v5
 
       - name: Determine package and version
         id: meta
@@ -35,23 +37,37 @@ jobs:
           else
             echo "::error::Unknown tag: $TAG"; exit 1
           fi
-          echo "version=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
+          VERSION="${BASH_REMATCH[1]}"
+          # Reject anything that isn't a plain semver-ish string before it
+          # flows into downstream shell / sed / gh commands.
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+([a-zA-Z0-9.\-+]*)?$ ]]; then
+            echo "::error::Invalid version format: $VERSION"; exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Patch version
+        env:
+          VERSION: ${{ steps.meta.outputs.version }}
+          PACKAGE_DIR: ${{ steps.meta.outputs.package_dir }}
         run: |
-          sed -i 's/^version = ".*"/version = "${{ steps.meta.outputs.version }}"/' \
-            ${{ steps.meta.outputs.package_dir }}/pyproject.toml
+          sed -i "s|^version = .*|version = \"${VERSION}\"|" \
+            "${PACKAGE_DIR}/pyproject.toml"
 
       - name: Build
-        run: uv build --package ${{ steps.meta.outputs.package_name }}
+        env:
+          PACKAGE_NAME: ${{ steps.meta.outputs.package_name }}
+        run: uv build --package "${PACKAGE_NAME}"
 
       - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+        uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b  # release/v1
 
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+          PACKAGE_NAME: ${{ steps.meta.outputs.package_name }}
+          VERSION: ${{ steps.meta.outputs.version }}
         run: |
-          gh release create "${{ github.ref_name }}" dist/* \
-            --title "${{ steps.meta.outputs.package_name }} ${{ steps.meta.outputs.version }}" \
+          gh release create "$TAG" dist/* \
+            --title "${PACKAGE_NAME} ${VERSION}" \
             --generate-notes

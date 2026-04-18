@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import gc
 import os
 
 from datafrey.ui.console import err_console
@@ -68,10 +67,21 @@ def encrypt_and_submit(
     pubkey_resp = client.get_public_key()
 
     api_url = get_api_url()
-    if not is_mock_server(api_url):
-        _verify_fingerprint(pubkey_resp.fingerprint)
+    if is_mock_server(api_url):
+        print_success(
+            f"Server key fingerprint  {pubkey_resp.fingerprint}  [dim](mock)[/]"
+        )
+    else:
+        # For any real (non-mock) API URL the pin list must be non-empty and
+        # the server key must match. _verify_fingerprint raises on mismatch;
+        # here we also fail closed when no pin is configured, so a release
+        # that accidentally ships with PINNED_KEY_FINGERPRINTS=[] cannot
+        # silently downgrade MITM protection.
+        if not _verify_fingerprint(pubkey_resp.fingerprint):
+            from datafrey.exceptions import FingerprintMismatchError
 
-    print_success(f"Server key verified  {pubkey_resp.fingerprint}")
+            raise FingerprintMismatchError("(no pinned fingerprint)", pubkey_resp.fingerprint)
+        print_success(f"Server key verified  {pubkey_resp.fingerprint}")
 
     # Validate credentials against provider schema before encrypting
     from datafrey_api import Provider, validate_credentials
@@ -82,22 +92,23 @@ def encrypt_and_submit(
     # Derive AAD from authenticated user's sub claim.
     # The server must pass the same sub as AAD during decryption,
     # preventing replay of encrypted credentials under a different account.
+    # Fail closed: if we can't derive a sub, we won't submit without AAD.
     access_token = os.environ.get("DATAFREY_TOKEN") or token_store.get_access_token()
     try:
         payload = pyjwt.decode(access_token, options={"verify_signature": False})
-        user_sub = payload.get("sub", "")
+        user_sub = payload.get("sub") or ""
     except Exception:
         user_sub = ""
-    aad = user_sub.encode("utf-8") if user_sub else None
+    if not user_sub:
+        raise RuntimeError(
+            "Could not derive tenant binding (sub claim) from access token. "
+            "Re-run `datafrey login` and try again."
+        )
+    aad = user_sub.encode("utf-8")
 
     encrypted = encrypt_credentials(sensitive, pubkey_resp.public_key, aad=aad)
 
     print_success("Credentials encrypted (AES-256-GCM + RSA-OAEP) before transmission")
-
-    # Clear sensitive data
-    del sensitive
-    del credentials
-    gc.collect()
 
     # Submit
     create_data = DatabaseCreate(
@@ -196,17 +207,51 @@ def wait_for_connection(
         termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
 
 
-# Pinned fingerprint for production. Updated on key rotation.
-PINNED_KEY_FINGERPRINT: str | None = None  # Set when production key is known
+# Accepted production server key fingerprints.
+#
+# Rotation: add the new fingerprint BEFORE the backend starts serving it,
+# ship a CLI release, wait for users to upgrade, flip the backend, then
+# ship a release that drops the old fingerprint.
+#
+# Override for self-hosting / staging via DATAFREY_PINNED_KEY_FINGERPRINT
+# (comma-separated list). If both the constant and the env are empty,
+# pinning is skipped and the fingerprint is shown as "(unpinned)".
+PINNED_KEY_FINGERPRINTS: list[str] = [
+    "SHA256:4FSWuSx0mcbXNH/yJf4kvS7xxE7IxQyR6WqahHTqU4s=",
+]
 
 
-def _verify_fingerprint(fingerprint: str) -> None:
-    """Verify server key fingerprint against pinned value."""
-    if PINNED_KEY_FINGERPRINT is None:
-        return  # No pin configured yet
-    if fingerprint != PINNED_KEY_FINGERPRINT:
-        from datafrey.exceptions import FingerprintMismatchError
-        from datafrey.ui.display import show_security_warning
+def _accepted_fingerprints() -> list[str]:
+    """Return the pin list plus any additional pins from env.
 
-        show_security_warning(PINNED_KEY_FINGERPRINT, fingerprint)
-        raise FingerprintMismatchError(PINNED_KEY_FINGERPRINT, fingerprint)
+    The env override EXTENDS the built-in list; it cannot remove pins.
+    This prevents a malicious env var from silently disabling the pin check
+    by pointing it at an attacker-controlled fingerprint only.
+    """
+    env = os.environ.get("DATAFREY_PINNED_KEY_FINGERPRINT", "").strip()
+    extra = [p.strip() for p in env.split(",") if p.strip()] if env else []
+    return [*PINNED_KEY_FINGERPRINTS, *extra]
+
+
+def _verify_fingerprint(fingerprint: str) -> bool:
+    """Check fingerprint against pinned list (constant-time comparison).
+
+    Returns True if a pin is active and fingerprint matches.
+    Returns False if no pin is configured.
+    Raises FingerprintMismatchError if a pin is active but doesn't match.
+    """
+    import hmac
+
+    allowed = _accepted_fingerprints()
+    if not allowed:
+        return False
+    for pin in allowed:
+        if hmac.compare_digest(pin, fingerprint):
+            return True
+
+    from datafrey.exceptions import FingerprintMismatchError
+    from datafrey.ui.display import show_security_warning
+
+    expected = " | ".join(allowed)
+    show_security_warning(expected, fingerprint)
+    raise FingerprintMismatchError(expected, fingerprint)

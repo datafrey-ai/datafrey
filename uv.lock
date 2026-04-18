@@ -336,15 +336,15 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "cryptography", specifier = ">=44.0" },
+    { name = "cryptography", specifier = ">=44.0,<47" },
     { name = "datafrey-api", editable = "packages/datafrey-api" },
-    { name = "httpx", specifier = ">=0.27" },
-    { name = "keyring", specifier = ">=25.0" },
-    { name = "posthog", specifier = ">=3.0" },
-    { name = "pyjwt", specifier = ">=2.9" },
-    { name = "questionary", specifier = ">=2.1" },
-    { name = "rich", specifier = ">=13.0" },
-    { name = "typer", specifier = ">=0.15" },
+    { name = "httpx", specifier = ">=0.27,<0.29" },
+    { name = "keyring", specifier = ">=25.0,<27" },
+    { name = "posthog", specifier = ">=7,<8" },
+    { name = "pyjwt", specifier = ">=2.9,<3" },
+    { name = "questionary", specifier = ">=2.1,<3" },
+    { name = "rich", specifier = ">=13.0,<15" },
+    { name = "typer", specifier = ">=0.15,<1" },
 ]
 
 [[package]]
@@ -356,7 +356,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "pydantic", extras = ["email"], specifier = ">=2.0" }]
+requires-dist = [{ name = "pydantic", extras = ["email"], specifier = ">=2.9,<3" }]
 
 [[package]]
 name = "datafrey-mcp"
@@ -373,10 +373,10 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "datafrey-api", editable = "packages/datafrey-api" },
-    { name = "fastmcp", specifier = ">=2.0" },
-    { name = "httpx", specifier = ">=0.27" },
-    { name = "posthog", specifier = ">=3.0" },
-    { name = "pyjwt", extras = ["crypto"], specifier = ">=2.9" },
+    { name = "fastmcp", specifier = ">=3,<4" },
+    { name = "httpx", specifier = ">=0.27,<0.29" },
+    { name = "posthog", specifier = ">=7,<8" },
+    { name = "pyjwt", extras = ["crypto"], specifier = ">=2.9,<3" },
 ]
 
 [[package]]
@@ -393,11 +393,11 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "cryptography", specifier = ">=42" },
+    { name = "cryptography", specifier = ">=42,<47" },
     { name = "datafrey-api", editable = "packages/datafrey-api" },
-    { name = "fastapi", specifier = ">=0.110" },
-    { name = "pyjwt", specifier = ">=2" },
-    { name = "uvicorn", extras = ["standard"], specifier = ">=0.29" },
+    { name = "fastapi", specifier = ">=0.110,<1" },
+    { name = "pyjwt", specifier = ">=2,<3" },
+    { name = "uvicorn", extras = ["standard"], specifier = ">=0.29,<1" },
 ]
 
 [[package]]

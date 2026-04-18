@@ -2,15 +2,18 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+import secrets
+from datetime import datetime, timedelta, timezone
 
 import jwt
 from fastapi import APIRouter
 
 router = APIRouter()
 
-# Symmetric key for mock JWTs — not a real secret
-_MOCK_JWT_SECRET = "mock-secret-key"
+# Per-process random symmetric key. Regenerated on every start so a token
+# issued by one mock instance can never be replayed against another, even
+# if the OSS source is public.
+_MOCK_JWT_SECRET = secrets.token_urlsafe(32)
 
 
 @router.post("/auth/token")
@@ -22,7 +25,8 @@ def create_mock_token() -> dict:
         "email": "user@example.com",
         "name": "Mock User",
         "iat": now,
-        "exp": datetime(2099, 12, 31, tzinfo=timezone.utc),
+        # Short-lived: mock is a dev tool, not a long-running session.
+        "exp": now + timedelta(hours=24),
     }
     token = jwt.encode(payload, _MOCK_JWT_SECRET, algorithm="HS256")
     return {"token": token}

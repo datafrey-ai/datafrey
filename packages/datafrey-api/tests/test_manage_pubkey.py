@@ -4,7 +4,7 @@ from pydantic import ValidationError
 from datafrey_api import PublicKeyResponse
 
 _PEM = "-----BEGIN PUBLIC KEY-----\nMIIBIjAN...\n-----END PUBLIC KEY-----"
-_FINGERPRINT = "SHA256:" + "A" * 43
+_FINGERPRINT = "SHA256:" + "A" * 44
 
 
 class TestPublicKeyResponse:

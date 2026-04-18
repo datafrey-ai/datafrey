@@ -125,13 +125,13 @@ For security vulnerabilities, do not open a public issue. Instead, email [slava+
 
 ## Telemetry
 
-Datafrey sends usage events from the CLI and the MCP server to help us improve the product. Events are linked to your Datafrey account after login.
+Datafrey sends usage events from the CLI and the MCP server to help us improve the product. Events are linked to your Datafrey account via your WorkOS user ID (`sub`) after login — a pseudonymous identifier, not your email.
 
-**CLI** — command name, outcome, duration, error class, provider type (e.g. `snowflake`), auth method, CLI version, OS, architecture, Python version, CI flag. Your email and name are set as user properties.
+**CLI** — command name, outcome, duration, error class, provider type (e.g. `snowflake`), auth method, CLI version, OS, architecture, Python version, CI flag.
 
 **MCP server** — session start (with the MCP client name, e.g. `claude-ai`, `cursor`), tool name (`plan` or `run`), outcome, duration, and error class.
 
-**Never collected (anywhere):** credentials, hostnames, account/user/role/warehouse/database names, file paths, env vars, error messages, IP addresses, prompt content, SQL, query results, or any tool arguments / responses.
+**Never collected (anywhere):** email, name, credentials, hostnames, account/user/role/warehouse/database names, file paths, env vars, error messages, IP addresses, prompt content, SQL, query results, or any tool arguments / responses.
 
 **Opt out** by setting either:
 

@@ -2,18 +2,66 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 from datafrey.providers.base import DatabaseProvider, register_provider
 from datafrey.ui.console import console
 from datafrey.ui.prompts import prompt_password, prompt_select, prompt_text
 
+# Snowflake unquoted identifier: letter or _ followed by letters/digits/_.
+# Anything else is rejected at the prompt so user input can't reshape the
+# generated DDL (role/grant/user creation SQL).
+SNOWFLAKE_IDENT_PATTERN = r"^[a-zA-Z_][a-zA-Z0-9_]{0,254}$"
+
+# Hard cap on the PEM file we'll read into the encrypted envelope. An RSA-4096
+# encrypted PEM is ~3.5 KiB; 16 KiB covers every realistic key and stops a
+# social-engineered path (/etc/shadow, ~/.ssh/id_rsa) from being sucked in.
+_MAX_PEM_BYTES = 16 * 1024
+
+
+def _read_pem_key(path_input: str) -> str:
+    """Read a PEM private key from disk after validating path and contents.
+
+    Rejects: symlinks, paths outside the user's home directory, files above
+    _MAX_PEM_BYTES, and anything that doesn't open with a PEM header.
+    """
+    expanded = os.path.expanduser(path_input.strip())
+    path = Path(expanded).resolve(strict=True)
+
+    # Scope to $HOME so a mis-paste can't exfiltrate system files.
+    home = Path.home().resolve()
+    try:
+        path.relative_to(home)
+    except ValueError:
+        raise ValueError(
+            f"PEM key path must live under {home}. Got: {path}"
+        ) from None
+
+    if path.is_symlink():
+        raise ValueError(f"PEM key path is a symlink (not allowed): {path}")
+    if not path.is_file():
+        raise ValueError(f"PEM key path is not a regular file: {path}")
+
+    size = path.stat().st_size
+    if size > _MAX_PEM_BYTES:
+        raise ValueError(
+            f"PEM key file is too large ({size} bytes, max {_MAX_PEM_BYTES})."
+        )
+
+    text = path.read_text().replace("\r\n", "\n")
+    if "-----BEGIN " not in text.split("\n", 1)[0]:
+        raise ValueError("File does not start with a PEM header ('-----BEGIN ...').")
+    return text
+
 
 def _build_setup_sql(choices: dict) -> str:
     """Build the full setup SQL block based on user choices."""
-    warehouse = choices["warehouse"]
+    # Uppercase at emit — Snowflake normalizes unquoted identifiers and the
+    # generated DDL reads consistently regardless of how the user typed it.
+    warehouse = choices["warehouse"].upper()
     auth = choices["auth_method"]
-    db = choices["database"]
+    db = choices["database"].upper()
 
     grants = f"""\
 GRANT USAGE ON WAREHOUSE {warehouse} TO ROLE DATAFREY_ROLE;
@@ -73,7 +121,9 @@ class SnowflakeProvider(DatabaseProvider):
 
         console.print()
         console.print("[dim]To list your databases:[/] [bold cyan]SHOW DATABASES;[/]")
-        database = prompt_text("Database name:")
+        database = prompt_text(
+            "Database name:", validate_pattern=SNOWFLAKE_IDENT_PATTERN
+        )
         console.print(
             "[dim]You can connect more databases later.[/]"
         )
@@ -84,7 +134,9 @@ class SnowflakeProvider(DatabaseProvider):
             "[dim]This warehouse will execute all LLM queries "
             "— pick one sized for your workload.[/]"
         )
-        warehouse = prompt_text("Warehouse name:")
+        warehouse = prompt_text(
+            "Warehouse name:", validate_pattern=SNOWFLAKE_IDENT_PATTERN
+        )
 
         return {
             "auth_method": auth,
@@ -97,8 +149,6 @@ class SnowflakeProvider(DatabaseProvider):
         return [("Run in Snowflake", setup_sql)]
 
     def collect_credentials(self, choices: dict) -> dict[str, str]:
-        import os
-
         auth = choices["auth_method"]
         warehouse = choices["warehouse"]
         database = choices.get("database") or ""
@@ -123,8 +173,16 @@ class SnowflakeProvider(DatabaseProvider):
         account = prompt_text(
             "Account identifier:", validate_pattern=r"^[a-zA-Z0-9_.-]+$"
         )
-        username = prompt_text("Username:", default="DATAFREY_USER")
-        role = prompt_text("Role:", default="DATAFREY_ROLE")
+        username = prompt_text(
+            "Username:",
+            default="DATAFREY_USER",
+            validate_pattern=SNOWFLAKE_IDENT_PATTERN,
+        )
+        role = prompt_text(
+            "Role:",
+            default="DATAFREY_ROLE",
+            validate_pattern=SNOWFLAKE_IDENT_PATTERN,
+        )
         name = f"{account.split('.')[0]}-db"
 
         base = {
@@ -142,8 +200,7 @@ class SnowflakeProvider(DatabaseProvider):
 
         # RSA Key Pair
         key_path = prompt_text("Path to PEM private key file:")
-        key_path = os.path.expanduser(key_path.strip())
-        private_key_pem = Path(key_path).read_text().replace("\r\n", "\n")
+        private_key_pem = _read_pem_key(key_path)
         passphrase = (
             prompt_password("Key passphrase (Enter to skip):", optional=True) or None
         )
