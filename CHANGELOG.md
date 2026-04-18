@@ -4,17 +4,30 @@ All notable changes to this project will be documented in this file.
 
 ## [0.3.0] - 2026-04-18
 
-### Security
+### Added
 
-- Keyring backend allow-list (OS-native only); reject third-party fallbacks.
-- Config writes atomic; refuse symlinks and non-owner files; enforce 0o600.
-- Sanitize server error strings (strip ANSI, bound length, escape Rich markup).
-- Publish workflow: SHA-pin actions, validate tag version, pass inputs via env.
+- `datafrey client` — install Claude Code / Cursor / generic MCP configs from one menu.
+- `datafrey index drop` — remove the local index.
+- Live indexing progress inside `datafrey status`; prompt to index after `db connect`.
+- Opt-out PostHog telemetry in CLI and MCP server.
+- Auto-generate a connection name and auto-select the single available auth option during `db connect`.
 
 ### Changed
 
-- Tighten dependency upper bounds across all packages.
-- First PyPI release of `datafrey-mcp` and `datafrey-mock`.
+- Running `datafrey` with no subcommand now launches login.
+- `datafrey status` folds in index status; `datafrey index` is a direct command.
+- Claude Code setup uses marketplace plugin install instead of patching `mcp add`.
+- When already logged in, prompt to re-login instead of exiting.
+- Snowflake-only: the unfinished Postgres connector was removed.
+
+### Security
+
+- Keyring backend allow-list (OS-native only); reject third-party fallbacks.
+- Atomic config writes; refuse symlinks and non-owner files; enforce 0o600.
+- Sanitize server error strings (strip ANSI, bound length, escape Rich markup).
+- Roll back access token if refresh-token write fails.
+- Publish workflow: SHA-pin actions, validate tag version, pass inputs via env.
+- Tighten dependency upper bounds across all packages; add Dependabot.
 
 ## [0.2.0] - 2026-04-08
 
