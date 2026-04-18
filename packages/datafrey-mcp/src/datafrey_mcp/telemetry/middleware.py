@@ -81,8 +81,7 @@ class TelemetryMiddleware(Middleware):
     async def on_call_tool(
         self, context: MiddlewareContext, call_next: CallNext
     ) -> Any:
-        raw_tool = getattr(context.message, "name", None)
-        tool = (raw_tool or "").strip()[:100] if isinstance(raw_tool, str) else None
+        tool = getattr(context.message, "name", None)
         distinct_id = get_distinct_id()
         http_props = _http_props()
 
@@ -104,7 +103,7 @@ class TelemetryMiddleware(Middleware):
             return await call_next(context)
         except BaseException as e:
             outcome = "error"
-            error_class = type(e).__name__[:100]
+            error_class = type(e).__name__
             raise
         finally:
             if distinct_id and tool:
