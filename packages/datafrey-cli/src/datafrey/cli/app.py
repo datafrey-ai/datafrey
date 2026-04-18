@@ -72,6 +72,13 @@ def login(
     """Authenticate with Datafrey via browser."""
     from datafrey.auth import token_store
     from datafrey.auth.device_flow import start_device_flow
+    from datafrey.telemetry import identify_user, track
+    from datafrey.telemetry.events import (
+        LOGIN_COMPLETED,
+        LOGIN_FAILED,
+        LOGIN_STARTED,
+    )
+    from datafrey.telemetry.identity import extract_workos_sub
 
     # Already logged in?
     try:
@@ -83,11 +90,27 @@ def login(
     except DatafreyError:
         pass  # Keyring issues — proceed with login
 
-    result = start_device_flow(no_browser=no_browser)
+    track(LOGIN_STARTED)
+
+    try:
+        result = start_device_flow(no_browser=no_browser)
+    except DatafreyError as e:
+        track(LOGIN_FAILED, reason=_login_failure_reason(str(e)))
+        raise
 
     token_store.store_tokens(result["access_token"], result["refresh_token"])
 
     user = result.get("user", {})
+    workos_sub = extract_workos_sub(result["access_token"])
+    if workos_sub:
+        identify_user(
+            workos_sub,
+            email=user.get("email"),
+            first_name=user.get("first_name"),
+            last_name=user.get("last_name"),
+        )
+    track(LOGIN_COMPLETED, identified=bool(workos_sub))
+
     name = user.get("first_name", "")
     if user.get("last_name"):
         name = f"{name} {user['last_name']}".strip()
@@ -100,6 +123,19 @@ def login(
     from datafrey.cli.db import db_connect
 
     db_connect()
+
+
+def _login_failure_reason(msg: str) -> str:
+    m = msg.lower()
+    if "denied" in m:
+        return "denied"
+    if "expired" in m:
+        return "expired"
+    if "timed out" in m or "timeout" in m:
+        return "timeout"
+    if "network" in m:
+        return "network"
+    return "unknown"
 
 
 # ── logout ──
@@ -271,13 +307,81 @@ app.add_typer(client_app, name="client", help="Configure an AI client to use Dat
 # ── Entry point with global error handling ──
 
 
+_TOP_LEVEL_COMMANDS = {
+    "login",
+    "logout",
+    "status",
+    "whoami",
+    "doctor",
+    "db",
+    "index",
+    "client",
+}
+_SUBGROUPS = {"db", "index", "client"}
+
+
+def _parse_argv(args: list[str]) -> dict:
+    """Extract command/subcommand/flag *names* from argv. Drops all values."""
+    positional: list[str] = []
+    flags: list[str] = []
+    for arg in args:
+        if arg.startswith("--"):
+            flags.append(arg.split("=", 1)[0])
+        elif arg.startswith("-") and len(arg) > 1:
+            flags.append(arg)
+        else:
+            positional.append(arg)
+
+    command = positional[0] if positional and positional[0] in _TOP_LEVEL_COMMANDS else None
+    subcommand = positional[1] if command in _SUBGROUPS and len(positional) > 1 else None
+    return {"command": command, "subcommand": subcommand, "flags": flags}
+
+
 def main() -> None:
     """Entry point for the datafrey CLI."""
+    import time
+
+    from datafrey.telemetry import flush, track
+    from datafrey.telemetry.events import CLI_COMPLETED, CLI_INVOKED
+
+    start = time.monotonic()
+    cmd_meta = _parse_argv(sys.argv[1:])
+    track(CLI_INVOKED, **cmd_meta)
+
+    outcome = "ok"
+    error_class: str | None = None
+    exit_code = 0
     try:
-        app()
-    except KeyboardInterrupt:
-        console.print()
-        raise SystemExit(130)
-    except DatafreyError as e:
-        print_error(str(e), e.hint)
-        raise SystemExit(1)
+        try:
+            app()
+        except KeyboardInterrupt:
+            outcome = "interrupt"
+            exit_code = 130
+            console.print()
+        except DatafreyError as e:
+            outcome = "error"
+            error_class = type(e).__name__
+            print_error(str(e), e.hint)
+            exit_code = 1
+        except SystemExit as e:
+            code = e.code if isinstance(e.code, int) else (1 if e.code else 0)
+            exit_code = code
+            if code != 0:
+                outcome = "error"
+        except BaseException as e:  # noqa: BLE001
+            outcome = "error"
+            error_class = type(e).__name__
+            exit_code = 1
+            raise
+    finally:
+        track(
+            CLI_COMPLETED,
+            duration_ms=int((time.monotonic() - start) * 1000),
+            outcome=outcome,
+            error_class=error_class,
+            exit_code=exit_code,
+            **cmd_meta,
+        )
+        flush()
+
+    raise SystemExit(exit_code)
