@@ -119,7 +119,7 @@ uv run ruff check packages/
 
 Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting a pull request.
 
-For security vulnerabilities, do not open a public issue. Instead, email [slava+urgent@datafrey.ai](mailto:slava+urgent@datafrey.ai). See [SECURITY.md](SECURITY.md) for details.
+For security vulnerabilities, do not open a public issue. Instead, email [slava+security@datafrey.ai](mailto:slava+security@datafrey.ai). See [SECURITY.md](SECURITY.md) for details.
 
 ---
 

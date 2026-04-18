@@ -6,7 +6,7 @@ Security is critical to DataFrey. We handle database credentials and authenticat
 
 **Do not open a public GitHub issue for security vulnerabilities.**
 
-Email **[slava+urgent@datafrey.ai](mailto:slava+urgent@datafrey.ai)** with:
+Email **[slava+security@datafrey.ai](mailto:slava+security@datafrey.ai)** with:
 
 - Description of the vulnerability
 - Steps to reproduce
