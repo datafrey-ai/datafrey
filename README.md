@@ -123,6 +123,25 @@ For security vulnerabilities, do not open a public issue. Instead, email [slava+
 
 ---
 
+## Telemetry
+
+The Datafrey CLI sends usage events to help us improve it. Events are linked to your Datafrey account after login.
+
+**Collected:** command name, outcome, duration, error class, provider type (e.g. `snowflake`), auth method, CLI version, OS, architecture, Python version, CI flag. Your email and name are set as user properties.
+
+**Never collected:** credentials, hostnames, account/user/role/warehouse/database names, file paths, env vars, error messages, IP addresses.
+
+**Opt out** by setting either:
+
+```bash
+export DATAFREY_TELEMETRY_DISABLED=1
+export DO_NOT_TRACK=1
+```
+
+When opted out, no events are sent and no telemetry identifiers are written to your local config.
+
+---
+
 ## License
 
 Apache 2.0 -- see [LICENSE](LICENSE) for details.

@@ -26,6 +26,8 @@ def index_callback(ctx: typer.Context) -> None:
 
 def _do_reindex() -> None:
     from datafrey.auth.middleware import get_authenticated_client
+    from datafrey.telemetry import track
+    from datafrey.telemetry.events import INDEX_STARTED
 
     with get_authenticated_client() as client:
         databases = client.list_databases()
@@ -36,6 +38,7 @@ def _do_reindex() -> None:
             raise typer.Exit(0)
         client.reindex_database(databases[0].id)
 
+    track(INDEX_STARTED, source="manual_command")
     print_success("Indexing started.")
     from datafrey.ui.display import print_hint
     print_hint("Run 'datafrey status' to check progress.")
