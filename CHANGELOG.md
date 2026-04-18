@@ -6,19 +6,24 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- `datafrey client` — install Claude Code / Cursor / generic MCP configs from one menu.
-- `datafrey index drop` — remove the local index.
-- Live indexing progress inside `datafrey status`; prompt to index after `db connect`.
+- `datafrey client` command group with `claude`, `cursor`, and `mcp` subcommands for installing AI-client configs from one menu.
+- `datafrey index drop` to remove the local index.
+- Live indexing progress inside `datafrey status` and a hint after `datafrey index` starts.
+- Prompt to index the schema immediately after a successful `db connect`.
+- Auto-generated connection name and auto-selected single-option auth during `db connect`; auth prompt now shown before the browser opens.
 - Opt-out PostHog telemetry in CLI and MCP server.
-- Auto-generate a connection name and auto-select the single available auth option during `db connect`.
 
 ### Changed
 
-- Running `datafrey` with no subcommand now launches login.
-- `datafrey status` folds in index status; `datafrey index` is a direct command.
-- Claude Code setup uses marketplace plugin install instead of patching `mcp add`.
-- When already logged in, prompt to re-login instead of exiting.
-- Snowflake-only: the unfinished Postgres connector was removed.
+- Running `datafrey` with no subcommand launches login directly.
+- `datafrey status` folds in index status; `datafrey index` goes straight to sync.
+- Claude Code setup installs the marketplace plugin instead of patching `mcp add`; MCP enable instruction corrected to reference the `/mcp` slash command.
+- Cursor integration switched from file-patching to a deep-link install.
+- When already logged in, the CLI prompts to re-authenticate instead of exiting.
+- Snowflake-only: the unfinished Postgres connector was removed; RSA Key Pair auth hidden from the UI until tested.
+- Snowflake SQL hint snippets highlighted in cyan; inline SQL hint styling made consistent.
+- Removed `docs.datafrey.ai` links from CLI output.
+- README rewritten: quick start, "how it works" as a four-step user flow, and updated commands.
 
 ### Security
 
