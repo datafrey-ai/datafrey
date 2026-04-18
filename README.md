@@ -1,22 +1,16 @@
-<div align="center">
-
 # DataFrey
-
-**MCP server for your database.**
-
-- **Vibecode SQL.** Ask, clean, and transform your data in Claude Code.
-- **5 min setup.** Connect Snowflake and install the Claude Code plugin using the CLI.
-- **Understands your data.** Solve complex problems using the planning agent.
 
 [![PyPI version](https://img.shields.io/pypi/v/datafrey?style=flat-square)](https://pypi.org/project/datafrey/)
 [![Python 3.13+](https://img.shields.io/badge/python-3.13%2B-blue?style=flat-square)](https://python.org)
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue?style=flat-square)](LICENSE)
 
-[Documentation](https://docs.datafrey.ai) | [Website](https://datafrey.ai) | [GitHub](https://github.com/datafrey-ai/datafrey)
+MCP server for your database.
 
-</div>
+- **Vibecode SQL.** Ask, clean, and transform your data in Claude Code.
+- **5 min setup.** Connect Snowflake and install the Claude Code plugin using the CLI.
+- **Understands your data.** Solve complex problems using the planning agent.
 
----
+[Documentation](https://docs.datafrey.ai) · [Website](https://datafrey.ai) · [GitHub](https://github.com/datafrey-ai/datafrey)
 
 ## Install
 
