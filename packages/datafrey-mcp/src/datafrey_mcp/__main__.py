@@ -4,10 +4,6 @@ from __future__ import annotations
 
 import argparse
 
-from datafrey_mcp.observability import init_sentry
-
-init_sentry()
-
 from datafrey_mcp.config import MCP_HOST, MCP_PORT
 from datafrey_mcp.server import create_server
 

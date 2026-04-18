@@ -16,7 +16,6 @@ dependencies = [
     "PyJWT[crypto]>=2.9",
     "datafrey-api>=0.1",
     "posthog>=3.0",
-    "sentry-sdk>=2.18",
 ]
 
 [project.urls]
