@@ -67,7 +67,7 @@ class FingerprintMismatchError(DatafreyError):
                 f"Expected: {expected}\n"
                 f"Got:      {got}\n\n"
                 "This could indicate a man-in-the-middle attack.\n"
-                "Do NOT proceed. Contact support@datafrey.ai."
+                "Do NOT proceed. Contact slava+security@datafrey.ai."
             ),
         )
 

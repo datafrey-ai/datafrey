@@ -244,7 +244,7 @@ def show_security_warning(expected: str, got: str) -> None:
         f"  Expected: {expected}\n"
         f"  Got:      {got}\n\n"
         "[bold]This could indicate a man-in-the-middle attack.[/]\n"
-        "[bold]Do NOT proceed. Contact support@datafrey.ai.[/]",
+        "[bold]Do NOT proceed. Contact slava+security@datafrey.ai.[/]",
         title="Security Warning",
         border_style="red",
         expand=False,
