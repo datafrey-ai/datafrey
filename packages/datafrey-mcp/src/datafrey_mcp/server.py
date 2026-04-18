@@ -20,6 +20,8 @@ from datafrey_mcp.config import (
     WORKOS_AUTHKIT_DOMAIN,
     WORKOS_CLIENT_ID,
 )
+from datafrey_mcp.telemetry import flush as _flush_telemetry
+from datafrey_mcp.telemetry.middleware import TelemetryMiddleware
 
 
 def create_server(
@@ -44,6 +46,7 @@ def create_server(
             yield {"agent_client": agent_client}
         finally:
             await agent_client.close()
+            _flush_telemetry()
 
     mcp = FastMCP(
         name="datafrey",
@@ -61,6 +64,8 @@ def create_server(
         auth=auth,
         lifespan=lifespan,
     )
+
+    mcp.add_middleware(TelemetryMiddleware())
 
     @mcp.custom_route("/health", methods=["GET"])
     async def health(request: Request) -> PlainTextResponse:

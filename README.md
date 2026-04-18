@@ -125,11 +125,13 @@ For security vulnerabilities, do not open a public issue. Instead, email [slava+
 
 ## Telemetry
 
-The Datafrey CLI sends usage events to help us improve it. Events are linked to your Datafrey account after login.
+Datafrey sends usage events from the CLI and the MCP server to help us improve the product. Events are linked to your Datafrey account after login.
 
-**Collected:** command name, outcome, duration, error class, provider type (e.g. `snowflake`), auth method, CLI version, OS, architecture, Python version, CI flag. Your email and name are set as user properties.
+**CLI** — command name, outcome, duration, error class, provider type (e.g. `snowflake`), auth method, CLI version, OS, architecture, Python version, CI flag. Your email and name are set as user properties.
 
-**Never collected:** credentials, hostnames, account/user/role/warehouse/database names, file paths, env vars, error messages, IP addresses.
+**MCP server** — session start (with the MCP client name, e.g. `claude-ai`, `cursor`), tool name (`plan` or `run`), outcome, duration, and error class.
+
+**Never collected (anywhere):** credentials, hostnames, account/user/role/warehouse/database names, file paths, env vars, error messages, IP addresses, prompt content, SQL, query results, or any tool arguments / responses.
 
 **Opt out** by setting either:
 
@@ -138,7 +140,7 @@ export DATAFREY_TELEMETRY_DISABLED=1
 export DO_NOT_TRACK=1
 ```
 
-When opted out, no events are sent and no telemetry identifiers are written to your local config.
+The same variables disable telemetry for both the CLI and the MCP server (set them in the MCP server's environment if you self-host). When opted out, no events are sent and no telemetry identifiers are written to your local config.
 
 ---
 
