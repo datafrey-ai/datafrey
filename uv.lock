@@ -366,6 +366,7 @@ dependencies = [
     { name = "datafrey-api" },
     { name = "fastmcp" },
     { name = "httpx" },
+    { name = "posthog" },
     { name = "pyjwt", extra = ["crypto"] },
 ]
 
@@ -374,6 +375,7 @@ requires-dist = [
     { name = "datafrey-api", editable = "packages/datafrey-api" },
     { name = "fastmcp", specifier = ">=2.0" },
     { name = "httpx", specifier = ">=0.27" },
+    { name = "posthog", specifier = ">=3.0" },
     { name = "pyjwt", extras = ["crypto"], specifier = ">=2.9" },
 ]
 
