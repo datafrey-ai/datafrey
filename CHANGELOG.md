@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0] - 2026-04-18
+
+### Security
+
+- CLI keyring: allow-list OS-native backends by module.classname; reject third-party fallbacks.
+- CLI config: atomic writes; refuse symlinks and non-owner files; enforce 0o600.
+- CLI API errors: sanitize server strings (strip ANSI, bound length, escape Rich markup).
+- Token store rolls back access token if refresh-token write fails.
+- Publish workflow: SHA-pin third-party actions, validate tag version, pass inputs via env.
+
+### Changed
+
+- Tighten upper bounds on dependencies across `datafrey-api`, `datafrey`, `datafrey-mcp`, `datafrey-mock`.
+- Add Dependabot for GitHub Actions.
+
 ## [0.2.0] - 2026-04-08
 
 ### Added
