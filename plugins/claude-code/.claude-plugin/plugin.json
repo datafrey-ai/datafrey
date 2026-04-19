@@ -1,6 +1,6 @@
 {
   "name": "datafrey",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Query connected databases with natural language. Run SQL, explore schemas, and analyze data.",
   "author": {
     "name": "DataFrey",
