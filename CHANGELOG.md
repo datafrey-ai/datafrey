@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.1] - 2026-04-19
+
+### Fixed
+
+- `datafrey client claude` next-step hint now shows the namespaced MCP server name (`/mcp enable plugin:datafrey:datafrey`) so the command actually matches the plugin-bundled server.
+
 ## [0.3.0] - 2026-04-18
 
 ### Added
