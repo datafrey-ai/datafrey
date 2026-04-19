@@ -28,8 +28,8 @@ Choose based on how clear the SQL is:
 
 **When the SQL is not obvious** (e.g. unfamiliar schema, complex joins, ambiguous column names, analytical questions):
 1. Call `plan` with the user's question — it uses the database index to produce a verified query plan
-2. Show the plan and the SQL it implies
-3. Execute with `run`
+2. Print the full plan returned by `plan` as markdown to the user verbatim (do not summarize or omit sections) before doing anything else
+3. Execute the plan's SQL with `run`
 
 ## Examples
 
@@ -43,4 +43,5 @@ Choose based on how clear the SQL is:
 - If the query looks destructive or unexpected, ask the user to confirm before running
 - Format large result sets as tables; summarize if results exceed reasonable length
 - Authentication is handled automatically — the user will be prompted in their browser on first use
-- `plan` requires the database index to be built — if it fails with an index error, tell the user to run `datafrey index sync`
+- `plan` requires the database index to be built — if it fails with an index error, tell the user to run `datafrey index`
+- If the schema looks stale or results don't match expectations, suggest the user re-run `datafrey index` to refresh
