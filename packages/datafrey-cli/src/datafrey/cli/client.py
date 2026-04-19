@@ -64,7 +64,7 @@ def _setup_claude_code() -> str | None:
     console.print()
     console.print("Next steps:")
     console.print("  1. Run [bold]claude[/] to start Claude Code")
-    console.print("  2. Inside Claude Code, run [bold]/mcp enable datafrey[/] to enable the MCP server")
+    console.print("  2. Inside Claude Code, run [bold]/mcp enable plugin:datafrey:datafrey[/] to enable the MCP server")
     console.print("  3. Use [bold]/db[/] to query your database")
     return None
 
